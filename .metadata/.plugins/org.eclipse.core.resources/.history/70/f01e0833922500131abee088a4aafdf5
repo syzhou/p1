@@ -1,0 +1,28 @@
+#ifndef UTILITY_H
+#define UTILITY_H
+
+
+#define MAX_STRING_LENGTH 63
+#define BUFFER_SIZE MAX_STRING_LENGTH + 1
+#define FMTSTR "%MAX_STRING_LENGTH"
+#define SAFESCANF(s) scanf(FMTSTR, s)
+#define SAFEFSCANF(f,s) fscanf(f, FMTSTR, s)
+
+
+/* Allocate the memory for the new string and copy the source string
+ * to the destination string.
+ */
+void strAllocCpy(char* destination, const char* source);
+
+/* Comparison function for people structure.
+ */
+int comparePeople (const void* data_ptr1, const void* data_ptr2);
+
+/*Find a person by lastname and returns a pointer to the person structure.
+ * The function takes the pointer to the ordered containter and the lastname
+ * as parameters.
+ */
+struct Person *findPersonByLastname (struct Ordered_container* people, char* lastname);
+
+
+#endif

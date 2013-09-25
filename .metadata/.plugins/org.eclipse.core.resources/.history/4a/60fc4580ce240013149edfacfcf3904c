@@ -1,0 +1,9 @@
+#include "Room.h"
+
+/* a Room contains a container of meetings and a room number */
+struct Room {
+	struct Ordered_container* meetings;	/* a container of pointers to Meeting objects */
+	int number;
+};
+
+

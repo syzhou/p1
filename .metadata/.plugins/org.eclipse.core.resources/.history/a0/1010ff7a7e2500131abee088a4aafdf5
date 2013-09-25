@@ -1,0 +1,8 @@
+
+/* a Meeting contains a time, a topic, and a container of participants */
+struct Meeting {
+	char* topic;
+	int time;
+	struct Ordered_container* participants;	/* a container of pointers to struct Person objects */
+};
+

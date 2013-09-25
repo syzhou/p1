@@ -1,0 +1,13 @@
+#include "Utility.h"
+#include "Ordered_container.h"
+
+void destroyData (void* data_ptr);
+
+void destroyAllData (struct Ordered_container* cPtr) {
+	OC_apply(cPtr, destroyData);
+}
+
+void destroyData (void* data_ptr) {
+	free(data_ptr);
+}
+
