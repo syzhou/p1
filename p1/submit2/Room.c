@@ -1,0 +1,139 @@
+#include "Room.h"
+#include "Utility.h"
+#include "Meeting.h"
+#include "Ordered_container.h"
+
+#include <stdlib.h>
+
+#define TIME_BOUND 5
+
+/* a Room contains a container of meetings and a room number */
+struct Room {
+	struct Ordered_container* meetings;	/* a container of pointers to Meeting objects */
+	int number;
+};
+
+int compareMeeting (const void* data_ptr1, const void* data_ptr2);
+
+/* Create a Room object.
+This is the only function that allocates memory for a Room
+and the contained data. */
+struct Room* create_Room(int number) {
+	struct Room* newRoom = malloc(sizeof(struct Room));
+	newRoom->meetings = OC_create_container(compareMeeting);
+	newRoom->number = number;
+	return newRoom;
+}
+
+/* Destroy a Room object.
+This is the only function that frees the memory for a Room
+and the contained data. The Meetings are destroyed before the
+Meeting list is emptied. */
+void destroy_Room(struct Room* room_ptr) {
+	OC_destroy_container(room_ptr->meetings);
+	free(room_ptr);
+}
+
+/* Return the room number. */
+int get_Room_number(const struct Room* room_ptr) {
+	return room_ptr->number;
+}
+
+/* Add the meeting to the room, return non-zero if a meeting already at that time, 0 if OK. */
+int add_Room_Meeting(struct Room* room_ptr, const struct Meeting* meeting_ptr) {
+	if (OC_find_item(room_ptr->meetings, (void *)meeting_ptr)) {
+		return 1;
+	}
+	OC_insert(room_ptr->meetings, (void *)meeting_ptr);
+	return 0;
+}
+
+/* Return a pointer to the meeting at the specified time, NULL if not present. */
+struct Meeting* find_Room_Meeting(const struct Room* room_ptr, int time) {
+	struct Meeting* soughtForMeeting = create_Meeting(time, NULL);
+	void* itemPtr = OC_find_item(get_Room_Meetings(room_ptr), (void *)soughtForMeeting);
+	destroy_Meeting(soughtForMeeting);
+	return (struct Meeting*) OC_get_data_ptr(itemPtr);
+}
+
+/* Remove the supplied meeting from the room; return non-zero if not there; 0 if OK.
+The meeting is not destroyed because we may need to place it into another room. */
+int remove_Room_Meeting(struct Room* room_ptr, const struct Meeting* meeting_ptr) {
+	void* itemPtr = OC_find_item(get_Room_Meetings(room_ptr), (void *)meeting_ptr);
+	if (itemPtr) {
+		OC_delete_item(room_ptr->meetings, itemPtr);
+		return 0;
+	} else {
+		return 1;
+	}
+}
+
+/* Clear and destroy the Meetings in a Room.
+This function destroys each meeting and leaves the Room empty of meetings. */
+void clear_Room(struct Room* room_ptr) {
+	OC_apply(room_ptr->meetings, (OC_apply_fp_t)destroy_Meeting);
+}
+
+/* Return a pointer to the const container of meetings for read-only iterations over the meetings. */
+const struct Ordered_container* get_Room_Meetings(const struct Room* room_ptr) {
+	return (const struct Ordered_container*)room_ptr->meetings;
+}
+
+/* Print the data in a struct Room. */
+void print_Room(const struct Room* room_ptr) {
+	printf("--- Room %d ---\n", get_Room_number(room_ptr));
+	OC_apply(get_Room_Meetings(room_ptr), (OC_apply_fp_t)print_Meeting);
+}
+
+/* Write the room data to a file. */
+void save_Room(const struct Room* room_ptr, FILE* outfile) {
+	fprintf(outfile, "%d %d\n", get_Room_number(room_ptr),
+			OC_get_size(get_Room_Meetings(room_ptr)));
+	OC_apply_arg(get_Room_Meetings(room_ptr), (OC_apply_arg_fp_t)save_Meeting, outfile);
+}
+
+/* Read a room's data from a file stream, create the data object and
+return a pointer to it, NULL if invalid data discovered in file.
+No check made for whether the room already exists or not. */
+struct Room* load_Room(FILE* infile, const struct Ordered_container* people) {
+	int roomNum;
+	int meetingCnt;
+	int i;
+	struct Room* newRoom;
+	if ((fscanf(infile, "%d", &roomNum) != 1)) {
+		return NULL;
+	}
+	if (fscanf(infile, "%d", &meetingCnt) != 1) {
+		return NULL;
+	}
+	newRoom = create_Room(roomNum);
+	for (i = 0; i < meetingCnt; i++) {
+		struct Meeting* newMeeting;
+		if ((newMeeting = load_Meeting(infile, people))	) {
+			add_Room_Meeting(newRoom, newMeeting);
+		} else {
+			clear_Room(newRoom);
+			destroy_Room(newRoom);
+			return NULL;
+		}
+	}
+	return newRoom;
+}
+
+int compareMeeting (const void* data_ptr1, const void* data_ptr2) {
+	int meetingTime1 = get_Meeting_time((struct Meeting*) data_ptr1);
+	int meetingTime2 = get_Meeting_time((struct Meeting*) data_ptr2);
+	if ((meetingTime1 > TIME_BOUND && meetingTime2 > TIME_BOUND)
+	|| (meetingTime1 <= TIME_BOUND && meetingTime2 <= TIME_BOUND)) {
+		return meetingTime1 - meetingTime2;
+	} else if (meetingTime1 > TIME_BOUND && meetingTime2 <= TIME_BOUND) {
+		return -1;
+	} else {
+		return 1;
+	}
+}
+
+
+
+
+

@@ -1,0 +1,108 @@
+#include "Ordered_container.h"
+#include "Person.h"
+#include "Meeting.h"
+#include "Room.h"
+#include "Utility.h"
+
+#include <stdlib.h>
+#include <stdio.h>
+
+void printIndividual(struct Ordered_container* people);
+void printErrUnrecCmd();
+void addIndividual(struct Ordered_container* people);
+
+int main() {
+	while (1) {
+		char cmd1;
+		char cmd2;
+		struct Ordered_container* people;
+		people = OC_create_container((OC_comp_fp_t)comparePeople);
+		printf("\nEnter command: ");
+		scanf(" %c", &cmd1);
+		scanf("%c", &cmd2);
+		switch (cmd1) {
+		case 'p':
+			switch (cmd2) {
+			case 'i':
+			{
+				printIndividual(people);
+			}
+				break;
+
+			default:
+				printErrUnrecCmd();
+				break;
+			}
+			break;
+		case 'a':
+			switch (cmd2) {
+			case 'i':
+			{
+				addIndividual(people);
+			}
+				break;
+
+			default:
+				printErrUnrecCmd();
+				break;
+			}
+			break;
+		case 'r':
+			break;
+		case 'd':
+			break;
+		case 's':
+			break;
+		case 'l':
+			break;
+		case 'q':
+			switch (cmd2) {
+			case 'q' :
+				return 0;
+				break;
+			default:
+				printErrUnrecCmd();
+				break;
+			}
+			break;
+		default:
+			printErrUnrecCmd();
+			break;
+		}
+	}
+	return 0;
+}
+
+/*Read a lastname from stdin and print out the person's information.
+ * Print an error message if that person desn't exist.
+ */
+void printIndividual(struct Ordered_container* people) {
+	char lastnameBuffer[MAX_STRING_LENGTH];
+	struct Person* person;
+	SAFEFSCANF(stdin, lastnameBuffer);
+	if ((person = findPersonByLastname(people, lastnameBuffer))) {
+		print_Person(person);
+	} else {
+		printf("No person with that name!\n");
+	}
+
+
+}
+
+/*Print out error when command is not recognized.
+ *
+ */
+void printErrUnrecCmd() {
+	printf("Unrecognized command!\n");
+}
+
+/*Read firstname, lastname and phone number from stdin
+ * and add the person to the people list.
+ * Print an error message if that person already exist.
+ */
+void addIndividual(struct Ordered_container* people) {
+	struct Person* newPerson = load_Person(stdin);
+	if (newPerson && (addPersonIfNotExist(newPerson, people))) {
+			printf("There is already a person with this last name!\n");
+	}
+}

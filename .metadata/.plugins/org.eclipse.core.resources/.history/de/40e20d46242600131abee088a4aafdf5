@@ -1,0 +1,21 @@
+#include "Ordered_container.h"
+#include "Person.h"
+#include "Meeting.h"
+#include "Room.h"
+
+#include <stdlib.h>
+#include <stdio.h>
+
+int main() {
+	while (1) {
+		char cmd1;
+		char cmd2;
+		printf("\nEnter command: ");
+		scanf("%c", cmd1);
+		scanf("%c", cmd2);
+		switch (cmd1) {
+		case
+		}
+	}
+	return 0;
+}

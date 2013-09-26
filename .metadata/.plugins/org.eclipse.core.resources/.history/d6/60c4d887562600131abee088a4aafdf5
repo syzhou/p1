@@ -1,0 +1,258 @@
+#include "Ordered_container.h"
+#include "Person.h"
+#include "Meeting.h"
+#include "Room.h"
+#include "Utility.h"
+
+#include <stdlib.h>
+#include <stdio.h>
+
+int compareRooms(struct Room* rm1, struct Room* rm2);
+void printIndividual(struct Ordered_container* people);
+void readRestOfLine(void);
+void printErrNoPerson(void);
+void printRoom(struct Ordered_container* rooms);
+int checkRoomNum(int roomNum);
+struct Room* findRoomByNum(struct Ordered_container* rooms, int* roomNum);
+int compareNumAndRoom(const int* roomNum, const void* data_ptr);
+void printErrNoRoom(void);
+void printMeeting(struct Ordered_container* rooms);
+int checkMeetingTime(int time);
+void printErrUnrecCmd(void);
+void addIndividual(struct Ordered_container* people);
+void printErrPersonExist(void);
+void addRoom(struct Ordered_container* rooms);
+void printErrRoomExist(void);
+void deleteIndividual(struct Ordered_container* people);
+
+int main() {
+	struct Ordered_container* people;
+	struct Ordered_container* rooms;
+	people = OC_create_container((OC_comp_fp_t)comparePeople);
+	rooms = OC_create_container((OC_comp_fp_t)compareRooms);
+	while (1) {
+		char cmd1;
+		char cmd2;
+		printf("\nEnter command: ");
+		scanf(" %c", &cmd1);
+		scanf("%c", &cmd2);
+		switch (cmd1) {
+		case 'p':
+			switch (cmd2) {
+			case 'i':
+				printIndividual(people);
+				break;
+			case 'r':
+				printRoom(rooms);
+				break;
+			default:
+				printErrUnrecCmd();
+				break;
+			}
+			break;
+		case 'a':
+			switch (cmd2) {
+			case 'i':
+				addIndividual(people);
+				break;
+			case 'r':
+				addRoom(rooms);
+				break;
+			default:
+				printErrUnrecCmd();
+				break;
+			}
+			break;
+		case 'r':
+			break;
+		case 'd':
+			switch (cmd2) {
+			case 'i':
+				break;
+			default:
+				printErrUnrecCmd();
+				break;
+			}
+			break;
+		case 's':
+			break;
+		case 'l':
+			break;
+		case 'q':
+			switch (cmd2) {
+			case 'q' :
+				return 0;
+				break;
+			default:
+				printErrUnrecCmd();
+				break;
+			}
+			break;
+		default:
+			printErrUnrecCmd();
+			break;
+		}
+	}
+	return 0;
+}
+
+/* Compare two rooms and returns negative, 0 or positive if the
+ * first room compares lesser, equal or larger than the second one.
+ */
+int compareRooms(struct Room* rm1, struct Room* rm2) {
+	return (get_Room_number(rm1) - get_Room_number(rm2));
+}
+
+/* Read a lastname from stdin and print out the person's information.
+ * Print an error message if that person desn't exist.
+ */
+void printIndividual(struct Ordered_container* people) {
+	char lastnameBuffer[MAX_STRING_LENGTH];
+	struct Person* person;
+	SAFEFSCANF(stdin, lastnameBuffer);
+	if ((person = findPersonByLastname(people, lastnameBuffer))) {
+		print_Person(person);
+	} else {
+		readRestOfLine();
+		printErrNoPerson();
+	}
+}
+void readRestOfLine() {
+	char c;
+	while ((c = getchar()) != '\n');
+}
+
+void printErrNoPerson() {
+	printf("No person with that name!\n");
+}
+
+
+
+/* Read a room number from stdin and print out the room's information.
+ * Print an error message if that person desn't exist.
+ */
+void printRoom(struct Ordered_container* rooms) {
+	struct Room* room;
+	int roomNum;
+	scanf("%d", &roomNum);
+	if (!checkRoomNum(roomNum)) {
+		if ((room = findRoomByNum(rooms, &roomNum))) {
+			print_Room(room);
+		} else {
+			printErrNoRoom();
+		}
+	}
+}
+
+
+/* Check the the room number in the range.
+ * Return 0 if OK.
+ * Print an error message if an error occur and return 1.
+ */
+int checkRoomNum(int roomNum) {
+	if (roomNum <= 0) {
+		readRestOfLine();
+		printf("Room number is not in range!\n");
+		return 1;
+	}
+	return 0;
+}
+
+/*Find a room by room number and returns a pointer to the room structure.
+ * Returns NULL if not found.
+ * The function takes the pointer to the ordered containter and the room number
+ * as parameters.
+ */
+struct Room* findRoomByNum(struct Ordered_container* rooms, int* roomNum) {
+	void *itemPtr = OC_find_item_arg(rooms, roomNum,
+			(OC_find_item_arg_fp_t)compareNumAndRoom);
+	return OC_get_data_ptr(itemPtr);
+}
+
+/* Compares the given room number and a room structure.
+ * Used as function pointer in OC_find_item_arg function.
+ */
+int compareNumAndRoom(const int* roomNum, const void* data_ptr) {
+	return (*roomNum - get_Room_number((struct Room*)data_ptr));
+}
+
+
+void printErrNoRoom(void) {
+	readRestOfLine();
+	printf("No room with that number!\n");
+}
+
+void printMeeting(struct Ordered_container* rooms) {
+	int roomNum;
+	int time;
+	struct Room* room;
+	scanf("%d", &roomNum);
+	if (checkRoomNum(roomNum)) {
+		return;
+	}
+	if (!(room = findRoomByNum(rooms, roomNum))) {
+		printErrNoRoom();
+		return;
+	}
+	scanf("%d", &time);
+
+}
+
+int checkMeetingTime(int time) {
+	if ((time >=9 && time <=12) || (time >=1 && time <= 5)) {
+		return 0;
+	}
+	readRestOfLine();
+	printf("Time is not in range!\n");
+	return 1;
+}
+/*Print out error when command is not recognized.
+ *
+ */
+void printErrUnrecCmd() {
+	readRestOfLine();
+	printf("Unrecognized command!\n");
+}
+
+/* Read firstname, lastname and phone number from stdin
+ * and add the person to the people list.
+ * Print an error message if that person already exist.
+ */
+void addIndividual(struct Ordered_container* people) {
+	struct Person* newPerson = load_Person(stdin);
+	if (newPerson && (addPersonIfNotExist(newPerson, people))) {
+		printErrPersonExist();
+	}
+}
+
+void printErrPersonExist(void) {
+	readRestOfLine();
+	printf("There is already a person with this last name!\n");
+}
+
+
+/* Read room number from stdin and add the room to the room list.
+ * Print an error message if that person already exist.
+ */
+void addRoom(struct Ordered_container* rooms) {
+	int roomNum;
+	struct Room* room;
+	scanf("%d", &roomNum);
+	if (!checkRoomNum(roomNum)) {
+		if (findRoomByNum(rooms, &roomNum)) {
+			printErrRoomExist();
+		} else {
+			room = create_Room(roomNum);
+			OC_insert(rooms, room);
+		}
+	}
+}
+
+void printErrRoomExist(void) {
+	readRestOfLine();
+	printf("There is already a room with this number!\n");
+}
+
+void deleteIndividual(struct Ordered_container* people) {
+
+}

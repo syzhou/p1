@@ -2920,3 +2920,16 @@ Binding(ALT+ARROW_RIGHT,
 		,,true),null),
 	org.eclipse.ui.defaultAcceleratorConfiguration,
 	org.eclipse.ui.contexts.window,,,system)
+
+!ENTRY org.eclipse.core.jobs 4 2 2013-09-26 01:33:39.774
+!MESSAGE An internal error occurred during: "Toggle Function Definition code automation".
+!STACK 0
+java.lang.ClassCastException: org.eclipse.cdt.internal.core.dom.parser.c.CASTSimpleDeclSpecifier cannot be cast to org.eclipse.cdt.core.dom.ast.cpp.ICPPASTDeclSpecifier
+	at org.eclipse.cdt.internal.ui.refactoring.togglefunction.ToggleNodeHelper.createInClassDefinition(ToggleNodeHelper.java:184)
+	at org.eclipse.cdt.internal.ui.refactoring.togglefunction.ToggleFromImplementationToHeaderOrClassStrategy.addDefinitionToClass(ToggleFromImplementationToHeaderOrClassStrategy.java:108)
+	at org.eclipse.cdt.internal.ui.refactoring.togglefunction.ToggleFromImplementationToHeaderOrClassStrategy.run(ToggleFromImplementationToHeaderOrClassStrategy.java:66)
+	at org.eclipse.cdt.internal.ui.refactoring.togglefunction.ToggleRefactoring.collectModifications(ToggleRefactoring.java:77)
+	at org.eclipse.cdt.internal.ui.refactoring.CRefactoring.checkFinalConditions(CRefactoring.java:129)
+	at org.eclipse.ltk.core.refactoring.Refactoring.checkAllConditions(Refactoring.java:162)
+	at org.eclipse.cdt.internal.ui.refactoring.togglefunction.RefactoringJob.run(RefactoringJob.java:54)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:53)
