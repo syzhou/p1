@@ -6,7 +6,7 @@ Meeting structs: 0
 Room structs: 0
 Containers: 2
 Container items in use: 0
-Container items allocated: 0
+Container items allocated: 6
 
 Enter command: List of people is empty
 
@@ -63,7 +63,7 @@ Meeting structs: 2
 Room structs: 2
 Containers: 6
 Container items in use: 9
-Container items allocated: 9
+Container items allocated: 18
 
 Enter command: Data saved
 
@@ -87,7 +87,7 @@ Meeting structs: 2
 Room structs: 2
 Containers: 6
 Container items in use: 9
-Container items allocated: 9
+Container items allocated: 18
 
 Enter command: Meeting rescheduled to room 1002 at 3
 
@@ -128,7 +128,7 @@ Meeting structs: 0
 Room structs: 1
 Containers: 3
 Container items in use: 3
-Container items allocated: 3
+Container items allocated: 9
 
 Enter command: Data saved
 
@@ -153,7 +153,7 @@ Meeting structs: 0
 Room structs: 0
 Containers: 2
 Container items in use: 0
-Container items allocated: 0
+Container items allocated: 6
 
 Enter command: All meetings deleted
 All rooms deleted

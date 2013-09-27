@@ -6,3 +6,7 @@ gcc -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"test/Ordered_container_demo
 ../test/Ordered_container_demo1.c:14:31: fatal error: Ordered_container.h: No such file or directory
 compilation terminated.
 make: *** [test/Ordered_container_demo1.o] Error 1
+03:08:03 **** Clean-only build of configuration Debug for project p1 ****
+make clean 
+rm -rf  ./test/Ordered_container_demo1.o ./test/Ordered_container_demo2.o  ./Meeting.o ./Ordered_container_array.o ./Ordered_container_list.o ./Person.o ./Room.o ./Utility.o ./p1_globals.o ./p1_main.o ./testContainer1.o  ./test/Ordered_container_demo1.d ./test/Ordered_container_demo2.d  ./Meeting.d ./Ordered_container_array.d ./Ordered_container_list.d ./Person.d ./Room.d ./Utility.d ./p1_globals.d ./p1_main.d ./testContainer1.d  p1
+ 

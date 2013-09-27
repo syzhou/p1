@@ -1,0 +1,10 @@
+gcc -c -ansi -std=c89 -pedantic -Wmissing-prototypes -Wall testContainer1.c
+gcc -c -ansi -std=c89 -pedantic -Wmissing-prototypes -Wall Person.c
+gcc -c -ansi -std=c89 -pedantic -Wmissing-prototypes -Wall Meeting.c
+gcc -c -ansi -std=c89 -pedantic -Wmissing-prototypes -Wall Room.c
+gcc -c -ansi -std=c89 -pedantic -Wmissing-prototypes -Wall p1_globals.c
+gcc -c -ansi -std=c89 -pedantic -Wmissing-prototypes -Wall Utility.c
+gcc -c -ansi -std=c89 -pedantic -Wmissing-prototypes -Wall Ordered_container_list.c
+gcc -pedantic -Wall testContainer1.o Person.o Meeting.o Room.o p1_globals.o Utility.o Ordered_container_list.o -o p1Lexe
+gcc -c -ansi -std=c89 -pedantic -Wmissing-prototypes -Wall Ordered_container_array.c
+gcc -pedantic -Wall testContainer1.o Person.o Meeting.o Room.o p1_globals.o Utility.o Ordered_container_array.o -o p1Aexe

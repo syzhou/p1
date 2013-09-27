@@ -1,0 +1,134 @@
+0
+1
+finding 1    not found
+0
+0
+0
+
+
+insert one
+size = 1
+empty? 0
+finding 1  finding 1    found 1
+0
+add one to ALL
+printing ALL  2
+minus one to all
+printing ALL  1
+stop 5  0
+stop 5   0
+printing ALL  1
+
+
+insert one
+size = 2
+empty? 0
+finding 1  finding 1    found 1
+0
+add one to ALL
+printing ALL  3
+printing ALL  3
+minus one to all
+printing ALL  1
+printing ALL  1
+stop 5  0
+stop 5   0
+printing ALL  1
+printing ALL  1
+
+
+insert one
+size = 3
+empty? 0
+finding 1  finding 1    found 1
+0
+add one to ALL
+printing ALL  4
+printing ALL  4
+printing ALL  4
+minus one to all
+printing ALL  1
+printing ALL  1
+printing ALL  1
+stop 5  0
+stop 5   0
+printing ALL  1
+printing ALL  1
+printing ALL  1
+
+
+clear
+size = 0
+empty? 1
+finding 1  finding 1    not found
+0
+add one to ALL
+minus one to all
+stop 5  0
+stop 5   0
+
+
+insert four
+size = 1
+empty? 0
+finding 1  finding 1    not found
+0
+add one to ALL
+printing ALL  5
+minus one to all
+printing ALL  4
+stop 5  0
+stop 5   0
+printing ALL  4
+
+
+insert five
+size = 2
+empty? 0
+finding 1  finding 1    not found
+0
+add one to ALL
+printing ALL  5
+printing ALL  6
+minus one to all
+printing ALL  4
+printing ALL  5
+stop 5  find 55
+5
+stop 5   find 55
+printing ALL  4
+printing ALL  5
+
+
+
+delete 5
+1
+empty? 0
+finding 1  finding 1    not found
+0
+add one to ALL
+printing ALL  5
+minus one to all
+printing ALL  4
+stop 5  0
+stop 5   0
+printing ALL  4
+printing ALL  3
+printing ALL  4
+printing ALL  4
+finding 5    found 5
+finding 3    found 3
+finding 6    found 6
+finding 2    found 2
+printing ALL  2
+printing ALL  3
+printing ALL  4
+printing ALL  5
+printing ALL  6
+
+
+printing ALL  3
+printing ALL  4
+printing ALL  5
+
+

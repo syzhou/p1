@@ -21,30 +21,54 @@
 		<item value="24" key="y"/>
 		<item value="231" key="x"/>
 	</section>
+	<section name="org.eclipse.cdt.internal.ui.typehierarchy.OpenTypeInHierarchyActionSettings">
+		<item value="true" key="show_structs"/>
+		<item value="true" key="show_lowlevel"/>
+		<item value="false" key="show_macros"/>
+		<item value="false" key="show_variables"/>
+		<item value="477" key="width"/>
+		<item value="false" key="show_functions"/>
+		<item value="true" key="show_enums"/>
+		<item value="744" key="height"/>
+		<item value="true" key="show_classes"/>
+		<item value="true" key="show_typedefs"/>
+		<item value="false" key="show_namespaces"/>
+		<item value="true" key="show_unions"/>
+		<item value="false" key="show_enumerators"/>
+		<item value="24" key="y"/>
+		<item value="307" key="x"/>
+	</section>
 	<section name="PDOMSearchPage">
+		<item value="227191" key="searchFlags"/>
+		<item value="false" key="caseSensitive"/>
+		<list key="previousPatterns">
+			<item value="OC_create_container"/>
+			<item value="OC_create"/>
+			<item value="free"/>
+		</list>
 	</section>
 	<section name="org.eclipse.cdt.internal.ui.text.QuickOutline">
 		<item value="430" key="org.eclipse.cdt.internal.ui.text.COutlineInformationControlDIALOG_X_ORIGIN"/>
-		<item value="298" key="org.eclipse.cdt.internal.ui.text.COutlineInformationControlDIALOG_Y_ORIGIN"/>
 		<item value="340" key="org.eclipse.cdt.internal.ui.text.COutlineInformationControlDIALOG_HEIGHT"/>
+		<item value="298" key="org.eclipse.cdt.internal.ui.text.COutlineInformationControlDIALOG_Y_ORIGIN"/>
 		<item value="true" key="org.eclipse.cdt.internal.ui.text.COutlineInformationControlDIALOG_USE_PERSISTED_SIZE"/>
 		<item value="400" key="org.eclipse.cdt.internal.ui.text.COutlineInformationControlDIALOG_WIDTH"/>
 		<item value="true" key="org.eclipse.cdt.internal.ui.text.COutlineInformationControlDIALOG_USE_PERSISTED_LOCATION"/>
+	</section>
+	<section name="RenameInformationPopup">
 	</section>
 	<section name="org.eclipse.cdt.ui.text.hover.CMacroExpansionExploration.internal">
 		<item value="442" key="size.width"/>
 		<item value="120" key="size.height"/>
 	</section>
-	<section name="RenameInformationPopup">
+	<section name="CRenameRefactoringInputPage">
 	</section>
 	<section name="org.eclipse.cdt.ui.OPEN_ACTION_SELECTION_DIALOG_SECTION">
 		<item value="446" key="DIALOG_WIDTH"/>
 		<item value="62" key="DIALOG_Y_ORIGIN"/>
-		<item value="486" key="DIALOG_HEIGHT"/>
 		<item value="257" key="DIALOG_X_ORIGIN"/>
+		<item value="486" key="DIALOG_HEIGHT"/>
 		<item value="1|Ubuntu|11.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
-	</section>
-	<section name="CRenameRefactoringInputPage">
 	</section>
 	<section name="org.eclipse.cdt.ui.text.hover.CMacroExpansionExploration">
 	</section>
