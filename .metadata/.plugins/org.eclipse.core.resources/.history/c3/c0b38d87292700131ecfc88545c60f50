@@ -1,0 +1,117 @@
+#include "Meeting.h"
+#include "Ordered_container.h"
+#include "Utility.h"
+#include "Person.h"
+#include "p1_globals.h"
+
+#include <stdlib.h>
+/* a Meeting contains a time, a topic, and a container of participants */
+struct Meeting {
+	char* topic;
+	int time;
+	struct Ordered_container* participants;	/* a container of pointers to struct Person objects */
+};
+
+void savePersonLastname(struct Person* person, FILE* outfile);
+/* Create a Meeting object.
+This is the only function that allocates memory for a Meeting
+and the contained data. */
+struct Meeting* create_Meeting(int time, const char* topic) {
+	struct Meeting* newMeeting = malloc(sizeof(struct Meeting));
+	newMeeting->time = time;
+	newMeeting->topic = strAllocCpy(topic);
+	newMeeting->participants = OC_create_container(comparePeople);
+	g_Meeting_memory++;
+	return newMeeting;
+}
+
+/* Destroy a Meeting object.
+This is the only function that frees the memory for a Meeting
+and the contained data. It discards the participant list,
+but of course does not delete the Persons themselves. */
+void destroy_Meeting(struct Meeting* meeting_ptr) {
+	freeString(meeting_ptr->topic);
+	OC_destroy_container(meeting_ptr->participants);
+	free(meeting_ptr);
+	g_Meeting_memory--;
+}
+
+/* Return and set the meeting time. */
+int get_Meeting_time(const struct Meeting* meeting_ptr) {
+	return meeting_ptr->time;
+}
+void set_Meeting_time(struct Meeting* meeting_ptr, int time) {
+	meeting_ptr->time = time;
+}
+
+/* Add a participant; return non-zero and do nothing if already present. */
+int add_Meeting_participant(struct Meeting* meeting_ptr, const struct Person* person_ptr) {
+	return addPersonIfNotExist(person_ptr, meeting_ptr->participants);
+}
+
+/* Return non-zero if the person is a participant, zero if not. */
+int is_Meeting_participant_present(const struct Meeting* meeting_ptr, const struct Person * person_ptr) {
+	return OC_find_item(meeting_ptr->participants, (void*)person_ptr) != NULL;
+}
+
+/* Remove a participant; return non-zero if not present, zero if was present. */
+int remove_Meeting_participant(struct Meeting* meeting_ptr, const struct Person* person_ptr) {
+	return removePersonIfExist(person_ptr, meeting_ptr->participants);
+}
+
+/* Print the data in a struct Meeting. */
+void print_Meeting(const struct Meeting* meeting_ptr) {
+	printf("Meeting time: %d, Topic: %s\nParticipants:", meeting_ptr->time, meeting_ptr->topic);
+	if (OC_empty(meeting_ptr->participants)) {
+		printf(" None\n");
+	} else {
+		printf("\n");
+	}
+	OC_apply(meeting_ptr->participants, (OC_apply_fp_t) print_Person);
+}
+
+/* Write the data in a Meeting to a file. */
+void save_Meeting(const struct Meeting* meeting_ptr, FILE* outfile) {
+	fprintf(outfile, "%d %s %d", meeting_ptr->time,
+			meeting_ptr->topic, OC_get_size(meeting_ptr->participants));
+	OC_apply_arg(meeting_ptr->participants, (OC_apply_arg_fp_t)savePersonLastname, outfile);
+}
+
+/* Read a Meeting's data from a file stream, create the data object and
+return a pointer to it, NULL if invalid data discovered in file.
+No check made for whether the Meeting already exists or not. */
+struct Meeting* load_Meeting(FILE* input_file, const struct Ordered_container* people) {
+	struct Meeting* newMeeting;
+	int meetingTime;
+	int numParticipants;
+	char topicBuffer[BUFFER_SIZE];
+	char lastnameBuffer[BUFFER_SIZE];
+	int i;
+	if (fscanf(input_file, "%d", &meetingTime) != 1) {
+		return NULL;
+	}
+	if(SAFEFSCANF(input_file, topicBuffer) != 1) {
+		return NULL;
+	}
+	if (fscanf(input_file, "%d", &numParticipants) != 1) {
+		return NULL;
+	}
+	newMeeting = create_Meeting(meetingTime, topicBuffer);
+	for (i = 0; i < numParticipants; i++) {
+		struct Person* participant;
+		if(SAFEFSCANF(input_file, lastnameBuffer) != 1
+			|| !(participant = findPersonByLastname(people, lastnameBuffer))
+			|| add_Meeting_participant(newMeeting, participant)) {
+			destroy_Meeting(newMeeting);
+			return NULL;
+		}
+	}
+	return newMeeting;
+}
+
+/* Save a person's last name to the outfile.
+ * Used as function pointer in OC_apply_arg to save meeting information.
+ */
+void savePersonLastname(struct Person* person, FILE* outfile) {
+	fprintf(outfile, "%s\n", get_Person_lastname(person));
+}

@@ -1,5 +1,6 @@
 #include "Person.h"
 #include "Utility.h"
+#include "p1_globals.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -26,9 +27,9 @@ struct Person* create_Person(const char* firstname, const char* lastname, const 
 This is the only function that frees the memory for a Person
 and the contained data. */
 void destroy_Person(struct Person* person_ptr) {
-	free(person_ptr->firstname);
-	free(person_ptr->lastname);
-	free(person_ptr->phoneno);
+	freeString(person_ptr->firstname);
+	freeString(person_ptr->lastname);
+	freeString(person_ptr->phoneno);
 	free(person_ptr);
 }
 
@@ -59,13 +60,13 @@ struct Person* load_Person(FILE* infile) {
 	char firstnameBuf[BUFFER_SIZE];
 	char lastnameBuf[BUFFER_SIZE];
 	char phonenoBuf[BUFFER_SIZE];
-	if (SAFEFSCANF(infile, firstnameBuf) != 1) {
+	if (SAFEFSCANF(infile, firstnameBuf) == EOF) {
 		return NULL;
 	}
-	if (SAFEFSCANF(infile, lastnameBuf) != 1) {
+	if (SAFEFSCANF(infile, lastnameBuf) == EOF) {
 		return NULL;
 	}
-	if (SAFEFSCANF(infile, phonenoBuf) != 1) {
+	if (SAFEFSCANF(infile, phonenoBuf) == EOF) {
 		return NULL;
 	}
 	return create_Person(firstnameBuf, lastnameBuf, phonenoBuf);

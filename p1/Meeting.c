@@ -2,6 +2,7 @@
 #include "Ordered_container.h"
 #include "Utility.h"
 #include "Person.h"
+#include "p1_globals.h"
 
 #include <stdlib.h>
 /* a Meeting contains a time, a topic, and a container of participants */
@@ -20,6 +21,7 @@ struct Meeting* create_Meeting(int time, const char* topic) {
 	newMeeting->time = time;
 	newMeeting->topic = strAllocCpy(topic);
 	newMeeting->participants = OC_create_container(comparePeople);
+	g_Meeting_memory++;
 	return newMeeting;
 }
 
@@ -28,9 +30,10 @@ This is the only function that frees the memory for a Meeting
 and the contained data. It discards the participant list,
 but of course does not delete the Persons themselves. */
 void destroy_Meeting(struct Meeting* meeting_ptr) {
-	free(meeting_ptr->topic);
+	freeString(meeting_ptr->topic);
 	OC_destroy_container(meeting_ptr->participants);
 	free(meeting_ptr);
+	g_Meeting_memory--;
 }
 
 /* Return and set the meeting time. */
@@ -69,7 +72,7 @@ void print_Meeting(const struct Meeting* meeting_ptr) {
 
 /* Write the data in a Meeting to a file. */
 void save_Meeting(const struct Meeting* meeting_ptr, FILE* outfile) {
-	fprintf(outfile, "%d %s %d", meeting_ptr->time,
+	fprintf(outfile, "%d %s %d\n", meeting_ptr->time,
 			meeting_ptr->topic, OC_get_size(meeting_ptr->participants));
 	OC_apply_arg(meeting_ptr->participants, (OC_apply_arg_fp_t)savePersonLastname, outfile);
 }
@@ -87,7 +90,7 @@ struct Meeting* load_Meeting(FILE* input_file, const struct Ordered_container* p
 	if (fscanf(input_file, "%d", &meetingTime) != 1) {
 		return NULL;
 	}
-	if(SAFEFSCANF(input_file, topicBuffer) != 1) {
+	if(SAFEFSCANF(input_file, topicBuffer) == EOF) {
 		return NULL;
 	}
 	if (fscanf(input_file, "%d", &numParticipants) != 1) {
@@ -96,7 +99,7 @@ struct Meeting* load_Meeting(FILE* input_file, const struct Ordered_container* p
 	newMeeting = create_Meeting(meetingTime, topicBuffer);
 	for (i = 0; i < numParticipants; i++) {
 		struct Person* participant;
-		if(SAFEFSCANF(input_file, lastnameBuffer) != 1
+		if(SAFEFSCANF(input_file, lastnameBuffer) == EOF
 			|| !(participant = findPersonByLastname(people, lastnameBuffer))
 			|| add_Meeting_participant(newMeeting, participant)) {
 			destroy_Meeting(newMeeting);

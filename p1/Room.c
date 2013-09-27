@@ -5,7 +5,6 @@
 
 #include <stdlib.h>
 
-#define TIME_BOUND 5
 
 /* a Room contains a container of meetings and a room number */
 struct Room {
@@ -72,6 +71,7 @@ int remove_Room_Meeting(struct Room* room_ptr, const struct Meeting* meeting_ptr
 This function destroys each meeting and leaves the Room empty of meetings. */
 void clear_Room(struct Room* room_ptr) {
 	OC_apply(room_ptr->meetings, (OC_apply_fp_t)destroy_Meeting);
+	OC_clear(room_ptr->meetings);
 }
 
 /* Return a pointer to the const container of meetings for read-only iterations over the meetings. */
@@ -126,14 +126,7 @@ struct Room* load_Room(FILE* infile, const struct Ordered_container* people) {
 int compareMeeting (const void* data_ptr1, const void* data_ptr2) {
 	int meetingTime1 = get_Meeting_time((struct Meeting*) data_ptr1);
 	int meetingTime2 = get_Meeting_time((struct Meeting*) data_ptr2);
-	if ((meetingTime1 > TIME_BOUND && meetingTime2 > TIME_BOUND)
-	|| (meetingTime1 <= TIME_BOUND && meetingTime2 <= TIME_BOUND)) {
-		return meetingTime1 - meetingTime2;
-	} else if (meetingTime1 > TIME_BOUND && meetingTime2 <= TIME_BOUND) {
-		return -1;
-	} else {
-		return 1;
-	}
+	return compareTime(meetingTime1, meetingTime2);
 }
 
 

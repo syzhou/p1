@@ -3,6 +3,7 @@
 #include "Meeting.h"
 #include "Room.h"
 #include "Utility.h"
+#include "p1_globals.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -24,6 +25,7 @@ int compareTimeAndMeeting(const int* time, struct Meeting* meeting);
 void printErrNoMeeting(void);
 void printSchedule(struct Ordered_container* rooms);
 void printGroup(struct Ordered_container* people);
+void printMemory(struct Ordered_container* rooms, struct Ordered_container* people);
 void printErrUnrecCmd(void);
 void addIndividual(struct Ordered_container* people);
 void printErrPersonExist(void);
@@ -35,15 +37,21 @@ void addParticipant(struct Ordered_container* rooms, struct Ordered_container* p
 void printErrParticipantExist(void);
 void rescheduleMeeting(struct Ordered_container* rooms);
 void deleteIndividual(struct Ordered_container* people, struct Ordered_container* rooms);
-int findPersonRoomMeeting(struct Room* room, struct Person* person);
+int findPersonRoom(struct Room* room, struct Person* person);
 void deleteRoom(struct Ordered_container* rooms);
-void destroyRoomMeeting(struct Room* room);
 void deleteMeeting(struct Ordered_container* rooms);
 void deleteParticipant(struct Ordered_container* rooms, struct Ordered_container* people);
 void deleteSchedule(struct Ordered_container* rooms);
 void deleteGroup(struct Ordered_container* rooms, struct Ordered_container* people);
 int roomHasMeeting(struct Room* room);
 void deleteAll(struct Ordered_container* rooms, struct Ordered_container* people);
+void saveData(struct Ordered_container* rooms, struct Ordered_container* people);
+void printErrOpenFile(void);
+void loadData(struct Ordered_container* rooms, struct Ordered_container* people);
+void deleteAllSilent(struct Ordered_container* rooms, struct Ordered_container* people);
+void printErrInvalidFile(struct Ordered_container* rooms, struct Ordered_container* people);
+
+
 int main() {
 	struct Ordered_container* people;
 	struct Ordered_container* rooms;
@@ -54,7 +62,7 @@ int main() {
 		char cmd2;
 		printf("\nEnter command: ");
 		scanf(" %c", &cmd1);
-		scanf("%c", &cmd2);
+		scanf(" %c", &cmd2);
 		switch (cmd1) {
 		case 'p':
 			switch (cmd2) {
@@ -72,6 +80,9 @@ int main() {
 				break;
 			case 'g':
 				printGroup(people);
+				break;
+			case 'a':
+				printMemory(rooms, people);
 				break;
 			default:
 				printErrUnrecCmd();
@@ -136,15 +147,29 @@ int main() {
 			}
 			break;
 		case 's':
+			switch (cmd2) {
+			case 'd' :
+				saveData(rooms, people);
+				break;
+			default:
+				printErrUnrecCmd();
+				break;
+			}
 			break;
 		case 'l':
+			switch (cmd2) {
+			case 'd' :
+				loadData(rooms, people);
+				break;
+			default:
+				printErrUnrecCmd();
+				break;
+			}
 			break;
 		case 'q':
 			switch (cmd2) {
 			case 'q' :
-				printf("All meetings deleted\n");
-				printf("All rooms deleted\n");
-				printf("All persons deleted\n");
+				deleteAll(rooms, people);
 				printf("Done\n");
 				return 0;
 				break;
@@ -291,19 +316,45 @@ struct Meeting* findMeetingByTime(const struct Ordered_container* meetings, int*
 			(OC_find_item_arg_fp_t)compareTimeAndMeeting);
 	return OC_get_data_ptr(itemPtr);
 }
-int compareTimeAndMeeting(const int* time, struct Meeting* meeting) {
-	return (*time - get_Meeting_time(meeting));
+int compareTimeAndMeeting(const int* meetingTime1Ptr, struct Meeting* meeting) {
+	int meetingTime2 = get_Meeting_time(meeting);
+	return compareTime(*meetingTime1Ptr, meetingTime2);
 }
 void printErrNoMeeting(void) {
 	readRestOfLine();
 	printf("No meeting at that time!\n");
 }
 void printSchedule(struct Ordered_container* rooms) {
-	OC_apply(rooms, (OC_apply_fp_t)print_Room);
+	int roomCnt;
+	if ((roomCnt = OC_get_size(rooms))) {
+		printf("Information for %d rooms:\n", roomCnt);
+		OC_apply(rooms, (OC_apply_fp_t)print_Room);
+	} else {
+		printf("List of rooms is empty\n");
+	}
 }
 
 void printGroup(struct Ordered_container* people) {
-	OC_apply(people, (OC_apply_fp_t)print_Person);
+	int peopleCnt;
+	if ((peopleCnt = OC_get_size(people))) {
+		printf("Information for %d people:\n", peopleCnt);
+		OC_apply(people, (OC_apply_fp_t)print_Person);
+	} else {
+		printf("List of people is empty\n");
+	}
+}
+
+
+void printMemory(struct Ordered_container* rooms, struct Ordered_container* people) {
+	printf("Memory allocations:\n");
+	printf("C-strings: %d bytes total\n", g_string_memory);
+	printf("Person structs: %d\n", OC_get_size(people));
+	printf("Meeting structs: %d\n", g_Meeting_memory);
+	printf("Room structs: %d\n", OC_get_size(rooms));
+	printf("Containers: %d\n", g_Container_count);
+	printf("Container items in use: %d\n", g_Container_items_in_use);
+	printf("Container items allocated: %d\n", g_Container_items_allocated);
+
 }
 /*Print out error when command is not recognized.
  *
@@ -411,8 +462,7 @@ void addParticipant(struct Ordered_container* rooms, struct Ordered_container* p
 	SAFESCANF(lastnameBuffer);
 	if (!(person = findPersonByLastname(people, lastnameBuffer))) {
 		printErrNoPerson();
-	}
-	if (add_Meeting_participant(meeting, person)) {
+	} else if (add_Meeting_participant(meeting, person)) {
 		printErrParticipantExist();
 	} else {
 		printf("Participant %s added\n", lastnameBuffer);
@@ -463,6 +513,7 @@ void rescheduleMeeting(struct Ordered_container* rooms) {
 	remove_Room_Meeting(oldRoom, meeting);
 	set_Meeting_time(meeting, newTime);
 	add_Room_Meeting(newRoom, meeting);
+	printf("Meeting rescheduled to room %d at %d\n", newRoomNum, newTime);
 }
 void deleteIndividual(struct Ordered_container* people, struct Ordered_container* rooms) {
 	char lastnameBuffer[MAX_STRING_LENGTH];
@@ -473,18 +524,19 @@ void deleteIndividual(struct Ordered_container* people, struct Ordered_container
 		return;
 	}
 	if (OC_apply_if_arg(rooms,
-			(OC_apply_if_arg_fp_t)findPersonRoomMeeting, person)) {
+			(OC_apply_if_arg_fp_t)findPersonRoom, person)) {
 		readRestOfLine();
 		printf("This person is a participant in a meeting!\n");
 	} else {
-		OC_delete_item(people, findPersonByLastname(people, lastnameBuffer));
+		OC_delete_item(people, OC_find_item(people, person));
 		destroy_Person(person);
 		printf("Person %s deleted\n", lastnameBuffer);
 	}
 }
 
-int findPersonRoomMeeting(struct Room* room, struct Person* person) {
-	return (int)OC_find_item(get_Room_Meetings(room), person);
+int findPersonRoom(struct Room* room, struct Person* person) {
+	return OC_apply_if_arg(get_Room_Meetings(room),
+				(OC_apply_if_arg_fp_t)is_Meeting_participant_present, person);
 }
 void deleteRoom(struct Ordered_container* rooms) {
 	struct Room* room;
@@ -496,12 +548,10 @@ void deleteRoom(struct Ordered_container* rooms) {
 		printErrNoRoom();
 		return;
 	}
-	destroyRoomMeeting(room);
-	printf("Room %d deleted\n", roomNum);
-}
-void destroyRoomMeeting(struct Room* room) {
+	OC_delete_item(rooms, OC_find_item(rooms, room));
 	clear_Room(room);
 	destroy_Room(room);
+	printf("Room %d deleted\n", roomNum);
 }
 
 void deleteMeeting(struct Ordered_container* rooms) {
@@ -523,6 +573,7 @@ void deleteMeeting(struct Ordered_container* rooms) {
 		printErrNoMeeting();
 		return;
 	}
+	remove_Room_Meeting(room, meeting);
 	destroy_Meeting(meeting);
 	printf("Meeting at %d deleted\n", time);
 }
@@ -550,8 +601,7 @@ void deleteParticipant(struct Ordered_container* rooms, struct Ordered_container
 	SAFESCANF(lastnameBuffer);
 	if (!(person = findPersonByLastname(people, lastnameBuffer))) {
 		printErrNoPerson();
-	}
-	if (remove_Meeting_participant(meeting, person)) {
+	} else if (remove_Meeting_participant(meeting, person)) {
 		readRestOfLine();
 		printf("This person is not a participant in the meeting!\n");
 	} else {
@@ -559,7 +609,8 @@ void deleteParticipant(struct Ordered_container* rooms, struct Ordered_container
 	}
 }
 void deleteSchedule(struct Ordered_container* rooms) {
-	OC_apply(rooms, (OC_apply_fp_t)destroyRoomMeeting);
+	OC_apply(rooms, (OC_apply_fp_t)clear_Room);
+	printf("All meetings deleted\n");
 }
 
 void deleteGroup(struct Ordered_container* rooms, struct Ordered_container* people) {
@@ -568,6 +619,8 @@ void deleteGroup(struct Ordered_container* rooms, struct Ordered_container* peop
 		printf("Cannot clear people list unless there are no meetings!\n");
 	} else {
 		OC_apply(people, (OC_apply_fp_t)destroy_Person);
+		OC_clear(people);
+		printf("All persons deleted\n");
 	}
 }
 int roomHasMeeting(struct Room* room) {
@@ -575,5 +628,82 @@ int roomHasMeeting(struct Room* room) {
 }
 void deleteAll(struct Ordered_container* rooms, struct Ordered_container* people) {
 	deleteSchedule(rooms);
+	OC_apply(rooms, (OC_apply_fp_t)destroy_Room);
+	OC_clear(rooms);
+	printf("All rooms deleted\n");
 	deleteGroup(rooms, people);
+}
+
+void saveData(struct Ordered_container* rooms, struct Ordered_container* people) {
+	char fileNameBuffer[MAX_STRING_LENGTH];
+	FILE *file;
+	SAFESCANF(fileNameBuffer);
+	if (!(file = fopen(fileNameBuffer, "w"))) {
+		printErrOpenFile();
+		return;
+	}
+	fprintf(file, "%d\n", OC_get_size(people));
+	OC_apply_arg(people, (OC_apply_arg_fp_t)save_Person, file);
+	fprintf(file, "%d\n", OC_get_size(rooms));
+	OC_apply_arg(rooms, (OC_apply_arg_fp_t)save_Room, file);
+
+
+
+	fclose(file);
+	printf("Data saved\n");
+}
+void printErrOpenFile(void) {
+	readRestOfLine();
+	printf("Could not open file!\n");
+}
+
+void loadData(struct Ordered_container* rooms, struct Ordered_container* people) {
+	char fileNameBuffer[MAX_STRING_LENGTH];
+	int peopleCnt;
+	int roomCnt;
+	int i;
+	FILE *file;
+	SAFESCANF(fileNameBuffer);
+	if (!(file = fopen(fileNameBuffer, "r"))) {
+		printErrOpenFile();
+		return;
+	}
+	deleteAllSilent(rooms, people);
+	if (fscanf(file, "%d", &peopleCnt) != 1) {
+		printErrInvalidFile(rooms, people);
+		return;
+	}
+	for (i = 0; i < peopleCnt; i++) {
+		struct Person* person;
+		if (!(person = load_Person(file))) {
+			printErrInvalidFile(rooms, people);
+			return;
+		}
+		OC_insert(people, person);
+	}
+	if (fscanf(file, "%d", &roomCnt) != 1) {
+		printErrInvalidFile(rooms, people);
+		return;
+	}
+	for (i = 0; i < roomCnt; i++) {
+		struct Room* room;
+		if(!(room = load_Room(file, people))) {
+			printErrInvalidFile(rooms, people);
+			return;
+		}
+		OC_insert(rooms, room);
+	}
+	printf("Data loaded\n");
+}
+void deleteAllSilent(struct Ordered_container* rooms, struct Ordered_container* people) {
+	OC_apply(rooms, (OC_apply_fp_t)clear_Room);
+	OC_apply(rooms, (OC_apply_fp_t)destroy_Room);
+	OC_clear(rooms);
+	OC_apply(people, (OC_apply_fp_t)destroy_Person);
+	OC_clear(people);
+}
+void printErrInvalidFile(struct Ordered_container* rooms, struct Ordered_container* people) {
+	deleteAllSilent(rooms, people);
+	readRestOfLine();
+	printf("Invalid data found in file!\n");
 }

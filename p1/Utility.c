@@ -1,10 +1,12 @@
 #include "Utility.h"
 #include "Person.h"
 #include "Ordered_container.h"
+#include "p1_globals.h"
 
 #include <stdlib.h>
 #include <string.h>
 
+#define TIME_BOUND 5
 
 int compareLastnameAndPerson(char* lastname, void* data_ptr);
 
@@ -12,11 +14,18 @@ int compareLastnameAndPerson(char* lastname, void* data_ptr);
  * to the destination string.
  */
 char* strAllocCpy(const char* source) {
-	char* destination = malloc(strlen(source) + 1);
+	int stringSize;
+	char* destination = malloc((stringSize = (strlen(source) + 1)));
 	strcpy(destination, source);
+	g_string_memory += stringSize;
 	return destination;
 }
 
+void freeString(char* s) {
+	g_string_memory -= strlen(s);
+	g_string_memory --;
+	free(s);
+}
 /* Comparison function for people structure.
  */
 int comparePeople (const void* data_ptr1, const void* data_ptr2) {
@@ -66,4 +75,13 @@ int removePersonIfExist(const struct Person* person_ptr, struct Ordered_containe
 int compareLastnameAndPerson(char* lastname, void* data_ptr) {
 	return strcmp(lastname, get_Person_lastname((struct Person*)data_ptr));
 }
-
+int compareTime(int meetingTime1, int meetingTime2) {
+	if ((meetingTime1 > TIME_BOUND && meetingTime2 > TIME_BOUND)
+		|| (meetingTime1 <= TIME_BOUND && meetingTime2 <= TIME_BOUND)) {
+		return meetingTime1 - meetingTime2;
+	} else if (meetingTime1 > TIME_BOUND && meetingTime2 <= TIME_BOUND) {
+		return -1;
+	} else {
+		return 1;
+	}
+}

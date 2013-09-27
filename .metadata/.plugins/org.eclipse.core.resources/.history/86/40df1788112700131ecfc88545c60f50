@@ -1,0 +1,35 @@
+#include "Ordered_container.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#define PRINT(i) printf("%d", i)
+int compare(int *a, int* b);
+int find(int a, struct Ordered_container* numbers);
+int main() {
+	struct Ordered_container* numbers = OC_create_container((OC_comp_fp_t)compare);
+	int a1= 1;
+	int a2 = 2;
+	int a3 = 3;
+	int a4 = 4;
+	int a5 = 5;
+	int a6 = 6;
+	int a7 = 7;
+	int a8 = 8;
+	OC_clear(numbers);
+	PRINT(OC_get_size(numbers));
+	PRINT(OC_empty(numbers));
+
+
+}
+int compare(int *a, int* b) {
+	return (*a - *b);
+}
+int find(int a, struct Ordered_container* numbers) {
+	void* itemPtr = OC_find_item(numbers, *a);
+	if (itemPtr) {
+		return *(OC_get_data_ptr(itemPtr));
+	} else {
+		return 0;
+	}
+}

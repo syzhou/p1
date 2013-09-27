@@ -16,6 +16,9 @@ struct Ordered_container;
  */
 char* strAllocCpy(const char* source);
 
+
+void freeString(char* s);
+
 /* Comparison function for people structure.
  */
 int comparePeople (const void* data_ptr1, const void* data_ptr2);
@@ -36,5 +39,7 @@ int addPersonIfNotExist(const struct Person* person_ptr, struct Ordered_containe
  * Don't remove and returns non-zero if that person is not present.
  */
 int removePersonIfExist(const struct Person* person_ptr, struct Ordered_container* people);
+
+int compareTime(int meetingTime1, int meetingTime2);
 
 #endif
