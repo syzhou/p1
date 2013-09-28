@@ -49,7 +49,7 @@ void saveData(struct Ordered_container* rooms, struct Ordered_container* people)
 void printErrOpenFile(void);
 void loadData(struct Ordered_container* rooms, struct Ordered_container* people);
 void deleteAllSilent(struct Ordered_container* rooms, struct Ordered_container* people);
-void printErrInvalidFile(struct Ordered_container* rooms, struct Ordered_container* people);
+void printErrInvalidFile(struct Ordered_container* rooms, struct Ordered_container* people, FILE* file);
 
 
 int main() {
@@ -170,6 +170,8 @@ int main() {
 			switch (cmd2) {
 			case 'q' :
 				deleteAll(rooms, people);
+				OC_destroy_container(rooms);
+				OC_destroy_container(people);
 				printf("Done\n");
 				return 0;
 				break;
@@ -206,12 +208,16 @@ void printIndividual(struct Ordered_container* people) {
 		printErrNoPerson();
 	}
 }
-
+/* Consume the rest of the line in stdin buffer and prints error
+ * message for no such people in the people list.
+ */
 void printErrNoPerson() {
 	readRestOfLine();
 	printf("No person with that name!\n");
 }
 
+/* Consume the rest of the line in stdin buffer.
+ */
 void readRestOfLine() {
 	char c;
 	while ((c = getchar()) != '\n');
@@ -219,7 +225,7 @@ void readRestOfLine() {
 
 
 /* Read a room number from stdin and print out the room's information.
- * Print an error message if that person desn't exist.
+ * Print an error message if that person doesn't exist.
  */
 void printRoom(struct Ordered_container* rooms) {
 	struct Room* room;
@@ -233,7 +239,10 @@ void printRoom(struct Ordered_container* rooms) {
 	}
 }
 
-
+/* Read the room number from stdin and return the number
+ * print error message and return -1 if unable to read an
+ * integer or room number is out of range
+ */
 int scanRoomNum(void) {
 	int roomNum;
 	if (scanf("%d", &roomNum) != 1) {
@@ -247,6 +256,9 @@ int scanRoomNum(void) {
 	return roomNum;
 }
 
+/* Consume the rest of the line in stdin buffer and prints error
+ * message that can't read integer.
+ */
 void printErrInteger(void) {
 	readRestOfLine();
 	printf("Could not read an integer value!\n");
@@ -260,22 +272,31 @@ void printErrInteger(void) {
 struct Room* findRoomByNum(struct Ordered_container* rooms, int* roomNum) {
 	void *itemPtr = OC_find_item_arg(rooms, roomNum,
 			(OC_find_item_arg_fp_t)compareNumAndRoom);
-	return OC_get_data_ptr(itemPtr);
+	if (itemPtr) {
+		return OC_get_data_ptr(itemPtr);
+	} else {
+		return NULL;
+	}
 }
 
 /* Compares the given room number and a room structure.
- * Used as function pointer in OC_find_item_arg function.
  */
 int compareNumAndRoom(const int* roomNum, struct Room* room) {
 	return (*roomNum - get_Room_number(room));
 }
 
-
+/* Consume the rest of the line in stdin buffer and prints error
+ * message that no such room with the room number.
+ */
 void printErrNoRoom(void) {
 	readRestOfLine();
 	printf("No room with that number!\n");
 }
 
+/* Read a room number and meeting time from stdin and print out the meeting's information.
+ * Print an error message if can't read integer value, room number out of range,
+ * no such room found, meeting time out of range or meeting does exist.
+ */
 void printMeeting(struct Ordered_container* rooms) {
 	int roomNum;
 	int time;
@@ -298,6 +319,10 @@ void printMeeting(struct Ordered_container* rooms) {
 	print_Meeting(meeting);
 }
 
+/* Read the meeting time from stdin and return the number
+ * print error message and return -1 if unable to read an
+ * integer or time out of range
+ */
 int scanMeetingTime(void) {
 	int time;
 	if (scanf("%d", &time) != 1) {
@@ -311,19 +336,36 @@ int scanMeetingTime(void) {
 	return time;
 }
 
+/* Helper function that finds a meeting given an OC of meetings and meeting time.
+ * Return the pointer to that meeting if found. Return NULL if not found.
+ */
 struct Meeting* findMeetingByTime(const struct Ordered_container* meetings, int* time) {
 	void *itemPtr = OC_find_item_arg(meetings, time,
 			(OC_find_item_arg_fp_t)compareTimeAndMeeting);
-	return OC_get_data_ptr(itemPtr);
+	if (itemPtr) {
+		return OC_get_data_ptr(itemPtr);
+	} else {
+		return NULL;
+	}
 }
+
+/* Compare function that compares meetings given a meeting time and a meeting pointer.
+ */
 int compareTimeAndMeeting(const int* meetingTime1Ptr, struct Meeting* meeting) {
 	int meetingTime2 = get_Meeting_time(meeting);
 	return compareTime(*meetingTime1Ptr, meetingTime2);
 }
+
+/* Consume the rest of the line in stdin buffer and prints error
+ * message that no such meeting found.
+ */
 void printErrNoMeeting(void) {
 	readRestOfLine();
 	printf("No meeting at that time!\n");
 }
+
+/* Print the whole schecule with all meetings in all rooms.
+ */
 void printSchedule(struct Ordered_container* rooms) {
 	int roomCnt;
 	if ((roomCnt = OC_get_size(rooms))) {
@@ -334,6 +376,8 @@ void printSchedule(struct Ordered_container* rooms) {
 	}
 }
 
+/* Print every person's information.
+ */
 void printGroup(struct Ordered_container* people) {
 	int peopleCnt;
 	if ((peopleCnt = OC_get_size(people))) {
@@ -344,7 +388,8 @@ void printGroup(struct Ordered_container* people) {
 	}
 }
 
-
+/* Print memory allocation status.
+ */
 void printMemory(struct Ordered_container* rooms, struct Ordered_container* people) {
 	printf("Memory allocations:\n");
 	printf("C-strings: %d bytes total\n", g_string_memory);
@@ -356,8 +401,8 @@ void printMemory(struct Ordered_container* rooms, struct Ordered_container* peop
 	printf("Container items allocated: %d\n", g_Container_items_allocated);
 
 }
-/*Print out error when command is not recognized.
- *
+/* Consume the rest of the line in stdin and
+ * print out error when command is not recognized.
  */
 void printErrUnrecCmd() {
 	readRestOfLine();
@@ -373,12 +418,16 @@ void printErrUnrecCmd() {
 void addIndividual(struct Ordered_container* people) {
 	struct Person* newPerson = load_Person(stdin);
 	if (newPerson && (addPersonIfNotExist(newPerson, people))) {
+		destroy_Person(newPerson);
 		printErrPersonExist();
 		return;
 	}
 	printf("Person %s added\n", get_Person_lastname(newPerson));
 }
 
+/* Consume the rest of the line in stdin buffer and prints error
+ * message that the last name already exists.
+ */
 void printErrPersonExist(void) {
 	readRestOfLine();
 	printf("There is already a person with this last name!\n");
@@ -403,10 +452,19 @@ void addRoom(struct Ordered_container* rooms) {
 	}
 }
 
+/* Consume the rest of the line in stdin buffer and prints error
+ * message that the room number already exists.
+ */
 void printErrRoomExist(void) {
 	readRestOfLine();
 	printf("There is already a room with this number!\n");
 }
+
+/* Read room number, meeting time and meeting topic from stdin
+ * and add the meeting to the meeting list.
+ * Print an error message if can't read integer value, room number
+ * out of range, room not found, time out of range, meeting already exist.
+ */
 void addMeeting(struct Ordered_container* rooms) {
 	int roomNum;
 	int time;
@@ -433,11 +491,21 @@ void addMeeting(struct Ordered_container* rooms) {
 	printf("Meeting added at %d\n", time);
 
 }
+
+/* Consume the rest of the line in stdin buffer and prints error
+ * message that the meeting with room number and time already exists.
+ */
 void printErrMeetingExist(void) {
 	readRestOfLine();
 	printf("There is already a meeting at that time!\n");
 }
 
+/* Read room number, meeting time and participant lastname from stdin
+ * and add the participant to the meeting.
+ * Print an error message if can't read integer value, room number
+ * out of range, room not found, time out of range, meeting not found,
+ * person not found, person already a participant.
+ */
 void addParticipant(struct Ordered_container* rooms, struct Ordered_container* people) {
 	int roomNum;
 	int time;
@@ -469,11 +537,20 @@ void addParticipant(struct Ordered_container* rooms, struct Ordered_container* p
 	}
 }
 
+/* Consume the rest of the line in stdin buffer and prints error
+ * message that person is already a participant.
+ */
 void printErrParticipantExist(void) {
 	readRestOfLine();
 	printf("This person is already a participant!\n");
 }
 
+/* Read old room number, old meeting time new room number and new meeting time,
+ * reschedule the meeting to new room and new time.
+ * Print an error message if can't read integer value, room number
+ * out of range, room not found, time out of range, meeting not found
+ * or new meeting time and room already taken.
+ */
 void rescheduleMeeting(struct Ordered_container* rooms) {
 	int oldRoomNum;
 	int oldTime;
@@ -515,6 +592,11 @@ void rescheduleMeeting(struct Ordered_container* rooms) {
 	add_Room_Meeting(newRoom, meeting);
 	printf("Meeting rescheduled to room %d at %d\n", newRoomNum, newTime);
 }
+
+/* Read lastname from stdin and delete the person from the people list.
+ * Print an error message if that person doesn't exist
+ * or an participant of a meeting.
+ */
 void deleteIndividual(struct Ordered_container* people, struct Ordered_container* rooms) {
 	char lastnameBuffer[MAX_STRING_LENGTH];
 	struct Person* person;
@@ -523,6 +605,10 @@ void deleteIndividual(struct Ordered_container* people, struct Ordered_container
 		printErrNoPerson();
 		return;
 	}
+	/* Check if the person is a participant of a meeting.
+	 * The check will call findPersonRoom in each room
+	 * then in each room find the person in each meeting.
+	 */
 	if (OC_apply_if_arg(rooms,
 			(OC_apply_if_arg_fp_t)findPersonRoom, person)) {
 		readRestOfLine();
@@ -533,11 +619,18 @@ void deleteIndividual(struct Ordered_container* people, struct Ordered_container
 		printf("Person %s deleted\n", lastnameBuffer);
 	}
 }
-
+/* Check whether a person is a participant of any meetings in the room.
+ */
 int findPersonRoom(struct Room* room, struct Person* person) {
 	return OC_apply_if_arg(get_Room_Meetings(room),
 				(OC_apply_if_arg_fp_t)is_Meeting_participant_present, person);
 }
+
+/* Read room number from stdin and delete the room from the people list.
+ * All meetings in that room will also be canceled.
+ * Print an error message if can't read integer, integer out of range
+ * or that room doesn't exist
+ */
 void deleteRoom(struct Ordered_container* rooms) {
 	struct Room* room;
 	int roomNum;
@@ -554,6 +647,10 @@ void deleteRoom(struct Ordered_container* rooms) {
 	printf("Room %d deleted\n", roomNum);
 }
 
+/* Read a room number and meeting time from stdin and delete the room's information.
+ * Print an error message if can't read integer value, room number out of range,
+ * no such room found, meeting time out of range or meeting does exist.
+ */
 void deleteMeeting(struct Ordered_container* rooms) {
 	int roomNum;
 	int time;
@@ -577,6 +674,13 @@ void deleteMeeting(struct Ordered_container* rooms) {
 	destroy_Meeting(meeting);
 	printf("Meeting at %d deleted\n", time);
 }
+
+/* Read a room number, meeting time and lastname from stdin
+ * and remove the participant.
+ * Print an error message if can't read integer value, room number out of range,
+ * no such room found, meeting time out of range, meeting does exist
+ * or participant not exist.
+ */
 void deleteParticipant(struct Ordered_container* rooms, struct Ordered_container* people) {
 	int roomNum;
 	int time;
@@ -608,11 +712,17 @@ void deleteParticipant(struct Ordered_container* rooms, struct Ordered_container
 		printf("Participant %s deleted\n", lastnameBuffer);
 	}
 }
+
+/* Delete all meetings in all rooms
+ */
 void deleteSchedule(struct Ordered_container* rooms) {
 	OC_apply(rooms, (OC_apply_fp_t)clear_Room);
 	printf("All meetings deleted\n");
 }
 
+/* Delete all people information.
+ * Print an error if there're meetings exist.
+ */
 void deleteGroup(struct Ordered_container* rooms, struct Ordered_container* people) {
 	if (OC_apply_if(rooms, (OC_apply_if_fp_t)roomHasMeeting)) {
 		readRestOfLine();
@@ -623,9 +733,16 @@ void deleteGroup(struct Ordered_container* rooms, struct Ordered_container* peop
 		printf("All persons deleted\n");
 	}
 }
+
+/* Check whether a room has any meetings.
+ * Returns zero if no meeting found, non-zero otherwise.
+ */
 int roomHasMeeting(struct Room* room) {
 	return (!OC_empty(get_Room_Meetings(room)));
 }
+
+/* Delete all data including meetings, rooms and people
+ */
 void deleteAll(struct Ordered_container* rooms, struct Ordered_container* people) {
 	deleteSchedule(rooms);
 	OC_apply(rooms, (OC_apply_fp_t)destroy_Room);
@@ -634,6 +751,9 @@ void deleteAll(struct Ordered_container* rooms, struct Ordered_container* people
 	deleteGroup(rooms, people);
 }
 
+/* Read file name from stdin and save the current state to the file
+ * Print an error if file can't be open to write.
+ */
 void saveData(struct Ordered_container* rooms, struct Ordered_container* people) {
 	char fileNameBuffer[MAX_STRING_LENGTH];
 	FILE *file;
@@ -652,11 +772,17 @@ void saveData(struct Ordered_container* rooms, struct Ordered_container* people)
 	fclose(file);
 	printf("Data saved\n");
 }
+
+/* Consume the rest of the line from stdin and print error file can't open.
+ */
 void printErrOpenFile(void) {
 	readRestOfLine();
 	printf("Could not open file!\n");
 }
 
+/* Read file name from stdin and load the file to current state.
+ * Print an error if file can't be open to read or invalid file.
+ */
 void loadData(struct Ordered_container* rooms, struct Ordered_container* people) {
 	char fileNameBuffer[MAX_STRING_LENGTH];
 	int peopleCnt;
@@ -670,31 +796,35 @@ void loadData(struct Ordered_container* rooms, struct Ordered_container* people)
 	}
 	deleteAllSilent(rooms, people);
 	if (fscanf(file, "%d", &peopleCnt) != 1) {
-		printErrInvalidFile(rooms, people);
+		printErrInvalidFile(rooms, people, file);
 		return;
 	}
 	for (i = 0; i < peopleCnt; i++) {
 		struct Person* person;
 		if (!(person = load_Person(file))) {
-			printErrInvalidFile(rooms, people);
+			printErrInvalidFile(rooms, people, file);
 			return;
 		}
 		OC_insert(people, person);
 	}
 	if (fscanf(file, "%d", &roomCnt) != 1) {
-		printErrInvalidFile(rooms, people);
+		printErrInvalidFile(rooms, people, file);
 		return;
 	}
 	for (i = 0; i < roomCnt; i++) {
 		struct Room* room;
 		if(!(room = load_Room(file, people))) {
-			printErrInvalidFile(rooms, people);
+			printErrInvalidFile(rooms, people, file);
 			return;
 		}
 		OC_insert(rooms, room);
 	}
+	fclose(file);
 	printf("Data loaded\n");
 }
+
+/* Delete all data in current state without stdout output.
+ */
 void deleteAllSilent(struct Ordered_container* rooms, struct Ordered_container* people) {
 	OC_apply(rooms, (OC_apply_fp_t)clear_Room);
 	OC_apply(rooms, (OC_apply_fp_t)destroy_Room);
@@ -702,7 +832,11 @@ void deleteAllSilent(struct Ordered_container* rooms, struct Ordered_container* 
 	OC_apply(people, (OC_apply_fp_t)destroy_Person);
 	OC_clear(people);
 }
-void printErrInvalidFile(struct Ordered_container* rooms, struct Ordered_container* people) {
+
+/* Consume the rest of line from stdin and print error invalid file.
+ */
+void printErrInvalidFile(struct Ordered_container* rooms, struct Ordered_container* people, FILE* file) {
+	fclose(file);
 	deleteAllSilent(rooms, people);
 	readRestOfLine();
 	printf("Invalid data found in file!\n");

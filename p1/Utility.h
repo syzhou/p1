@@ -10,18 +10,24 @@
 
 struct Person;
 struct Ordered_container;
+
+/* The following two functions manipulate string allocation
+ * and deallocation to make string memory counting at one place.
+ */
+
 /* Allocate the memory for the new string and copy the source string
  * to the destination string.
  * Return the pointer to the new string.
  */
 char* strAllocCpy(const char* source);
 
-
+/* Deallocate the string pointed by s.
+ */
 void freeString(char* s);
 
-/* Comparison function for people structure.
+/* Comparison function for people structure. Compares two people by lastname.
  */
-int comparePeople (const void* data_ptr1, const void* data_ptr2);
+int comparePeople (const struct Person* person1, const struct Person* person2);
 
 /*Find a person by lastname and returns a pointer to the person structure.
  * The function takes the pointer to the ordered containter and the lastname
@@ -40,6 +46,14 @@ int addPersonIfNotExist(const struct Person* person_ptr, struct Ordered_containe
  */
 int removePersonIfExist(const struct Person* person_ptr, struct Ordered_container* people);
 
+/* Compare two meeting time given two integer values.
+ * Return negative, zero or positive if the first is lesst,
+ * equal or greater the the second.
+ */
 int compareTime(int meetingTime1, int meetingTime2);
+
+/* Print an error message that unable to allocate memory and exit with code 1.
+ */
+void printErrBadMallocExit(void);
 
 #endif

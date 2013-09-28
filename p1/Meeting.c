@@ -17,10 +17,13 @@ void savePersonLastname(struct Person* person, FILE* outfile);
 This is the only function that allocates memory for a Meeting
 and the contained data. */
 struct Meeting* create_Meeting(int time, const char* topic) {
-	struct Meeting* newMeeting = malloc(sizeof(struct Meeting));
+	struct Meeting* newMeeting;
+	if (!(newMeeting = malloc(sizeof(struct Meeting)))) {
+		printErrBadMallocExit();
+	}
 	newMeeting->time = time;
 	newMeeting->topic = strAllocCpy(topic);
-	newMeeting->participants = OC_create_container(comparePeople);
+	newMeeting->participants = OC_create_container((OC_comp_fp_t)comparePeople);
 	g_Meeting_memory++;
 	return newMeeting;
 }
@@ -77,6 +80,13 @@ void save_Meeting(const struct Meeting* meeting_ptr, FILE* outfile) {
 	OC_apply_arg(meeting_ptr->participants, (OC_apply_arg_fp_t)savePersonLastname, outfile);
 }
 
+/* Save a person's last name to the outfile.
+ * Used as function pointer in OC_apply_arg to save meeting information.
+ */
+void savePersonLastname(struct Person* person, FILE* outfile) {
+	fprintf(outfile, "%s\n", get_Person_lastname(person));
+}
+
 /* Read a Meeting's data from a file stream, create the data object and
 return a pointer to it, NULL if invalid data discovered in file.
 No check made for whether the Meeting already exists or not. */
@@ -87,6 +97,9 @@ struct Meeting* load_Meeting(FILE* input_file, const struct Ordered_container* p
 	char topicBuffer[BUFFER_SIZE];
 	char lastnameBuffer[BUFFER_SIZE];
 	int i;
+	/* Read meeting time, topic and number of participants.
+	 * Check if reads successfully.
+	 */
 	if (fscanf(input_file, "%d", &meetingTime) != 1) {
 		return NULL;
 	}
@@ -99,6 +112,10 @@ struct Meeting* load_Meeting(FILE* input_file, const struct Ordered_container* p
 	newMeeting = create_Meeting(meetingTime, topicBuffer);
 	for (i = 0; i < numParticipants; i++) {
 		struct Person* participant;
+		/* Check if reads successfully, the person exist
+		 * and add the participant to meeting. If check failed, destroy
+		 * the newly created meeting.
+		 */
 		if(SAFEFSCANF(input_file, lastnameBuffer) == EOF
 			|| !(participant = findPersonByLastname(people, lastnameBuffer))
 			|| add_Meeting_participant(newMeeting, participant)) {
@@ -107,11 +124,4 @@ struct Meeting* load_Meeting(FILE* input_file, const struct Ordered_container* p
 		}
 	}
 	return newMeeting;
-}
-
-/* Save a person's last name to the outfile.
- * Used as function pointer in OC_apply_arg to save meeting information.
- */
-void savePersonLastname(struct Person* person, FILE* outfile) {
-	fprintf(outfile, "%s\n", get_Person_lastname(person));
 }

@@ -12,16 +12,27 @@ struct Room {
 	int number;
 };
 
-int compareMeeting (const void* data_ptr1, const void* data_ptr2);
+int compareMeeting (const struct Meeting* meeting1, const struct Meeting* meeting2);
 
 /* Create a Room object.
 This is the only function that allocates memory for a Room
 and the contained data. */
 struct Room* create_Room(int number) {
-	struct Room* newRoom = malloc(sizeof(struct Room));
-	newRoom->meetings = OC_create_container(compareMeeting);
+	struct Room* newRoom;
+	if (!(newRoom = malloc(sizeof(struct Room)))) {
+		printErrBadMallocExit();
+	}
+	newRoom->meetings = OC_create_container((OC_comp_fp_t)compareMeeting);
 	newRoom->number = number;
 	return newRoom;
+}
+
+/* Compares two meetings with their time.
+ * Return negative, zero or positive if the first meeting compares
+ * lesser, equal or larger than the second one.
+ */
+int compareMeeting (const struct Meeting* meeting1, const struct Meeting* meeting2) {
+	return compareTime(get_Meeting_time(meeting1), get_Meeting_time(meeting2));
 }
 
 /* Destroy a Room object.
@@ -49,10 +60,15 @@ int add_Room_Meeting(struct Room* room_ptr, const struct Meeting* meeting_ptr) {
 
 /* Return a pointer to the meeting at the specified time, NULL if not present. */
 struct Meeting* find_Room_Meeting(const struct Room* room_ptr, int time) {
+	/* A fake object just for searching. Deleted after search*/
 	struct Meeting* soughtForMeeting = create_Meeting(time, NULL);
 	void* itemPtr = OC_find_item(get_Room_Meetings(room_ptr), (void *)soughtForMeeting);
 	destroy_Meeting(soughtForMeeting);
-	return (struct Meeting*) OC_get_data_ptr(itemPtr);
+	if (itemPtr) {
+		return (struct Meeting*) OC_get_data_ptr(itemPtr);
+	} else {
+		return NULL;
+	}
 }
 
 /* Remove the supplied meeting from the room; return non-zero if not there; 0 if OK.
@@ -103,6 +119,7 @@ struct Room* load_Room(FILE* infile, const struct Ordered_container* people) {
 	int meetingCnt;
 	int i;
 	struct Room* newRoom;
+	/*Read room number and number of meetings. Check if reads successfully*/
 	if ((fscanf(infile, "%d", &roomNum) != 1)) {
 		return NULL;
 	}
@@ -122,14 +139,3 @@ struct Room* load_Room(FILE* infile, const struct Ordered_container* people) {
 	}
 	return newRoom;
 }
-
-int compareMeeting (const void* data_ptr1, const void* data_ptr2) {
-	int meetingTime1 = get_Meeting_time((struct Meeting*) data_ptr1);
-	int meetingTime2 = get_Meeting_time((struct Meeting*) data_ptr2);
-	return compareTime(meetingTime1, meetingTime2);
-}
-
-
-
-
-

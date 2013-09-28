@@ -8,29 +8,38 @@
 
 #define TIME_BOUND 5
 
+
 int compareLastnameAndPerson(char* lastname, void* data_ptr);
+
+
+
+/* The following two functions manipulate string allocation
+ * and deallocation to make string memory counting at one place.
+ */
 
 /* Allocate the memory for the new string and copy the source string
  * to the destination string.
  */
 char* strAllocCpy(const char* source) {
 	int stringSize;
-	char* destination = malloc((stringSize = (strlen(source) + 1)));
+	char* destination;
+	if (!(destination = malloc((stringSize = (strlen(source) + 1))))) {
+		printErrBadMallocExit();
+	}
 	strcpy(destination, source);
 	g_string_memory += stringSize;
 	return destination;
 }
-
+/* Deallocate the string pointed by s.
+ */
 void freeString(char* s) {
 	g_string_memory -= strlen(s);
 	g_string_memory --;
 	free(s);
 }
-/* Comparison function for people structure.
+/* Comparison function for people structure. Compares two people by lastname.
  */
-int comparePeople (const void* data_ptr1, const void* data_ptr2) {
-	struct Person* person1 = (struct Person*) data_ptr1;
-	struct Person* person2 = (struct Person*) data_ptr2;
+int comparePeople (const struct Person* person1, const struct Person* person2) {
 	return strcmp(get_Person_lastname(person1), get_Person_lastname(person2));
 
 }
@@ -42,7 +51,11 @@ int comparePeople (const void* data_ptr1, const void* data_ptr2) {
  */
 struct Person *findPersonByLastname (const struct Ordered_container* people, char* lastname) {
 	void *itemPtr = OC_find_item_arg(people, lastname, (OC_find_item_arg_fp_t)compareLastnameAndPerson);
-	return OC_get_data_ptr(itemPtr);
+	if (itemPtr) {
+		return OC_get_data_ptr(itemPtr);
+	} else {
+		return NULL;
+	}
 }
 
 /*Add a person to an ordered container. Return 0 if successful.
@@ -75,7 +88,13 @@ int removePersonIfExist(const struct Person* person_ptr, struct Ordered_containe
 int compareLastnameAndPerson(char* lastname, void* data_ptr) {
 	return strcmp(lastname, get_Person_lastname((struct Person*)data_ptr));
 }
+
+/* Compare two meeting time given two integer values.
+ * Return negative, zero or positive if the first is lesst,
+ * equal or greater the the second.
+ */
 int compareTime(int meetingTime1, int meetingTime2) {
+	/* Check which time period (9-12 or 1-5) the two meetings are in. */
 	if ((meetingTime1 > TIME_BOUND && meetingTime2 > TIME_BOUND)
 		|| (meetingTime1 <= TIME_BOUND && meetingTime2 <= TIME_BOUND)) {
 		return meetingTime1 - meetingTime2;
@@ -84,4 +103,11 @@ int compareTime(int meetingTime1, int meetingTime2) {
 	} else {
 		return 1;
 	}
+}
+
+/* Print an error message that unable to allocate memory and exit with code 1.
+ */
+void printErrBadMallocExit() {
+	printf("Unable to allocate memory\n");
+	exit(1);
 }

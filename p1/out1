@@ -1,161 +1,602 @@
+0
+1
+finding 1    not found
+0
+0
+0
 
-Enter command: Memory allocations:
-C-strings: 0 bytes total
-Person structs: 0
-Meeting structs: 0
-Room structs: 0
-Containers: 2
-Container items in use: 0
-Container items allocated: 6
 
-Enter command: List of people is empty
+insert one
+size = 1
+empty? 0
+finding 1  finding 1    found 1
+0
+add one to ALL
+printing ALL  2
+minus one to all
+printing ALL  1
+stop 5  0
+stop 5   0
+printing ALL  1
 
-Enter command: List of rooms is empty
 
-Enter command: Person Jones added
+insert one
+size = 2
+empty? 0
+finding 1  finding 1    found 1
+0
+add one to ALL
+printing ALL  3
+printing ALL  3
+minus one to all
+printing ALL  1
+printing ALL  1
+stop 5  0
+stop 5   0
+printing ALL  1
+printing ALL  1
 
-Enter command: Person Marner added
 
-Enter command: Person John added
+insert one
+size = 3
+empty? 0
+finding 1  finding 1    found 1
+0
+add one to ALL
+printing ALL  4
+printing ALL  4
+printing ALL  4
+minus one to all
+printing ALL  1
+printing ALL  1
+printing ALL  1
+stop 5  0
+stop 5   0
+printing ALL  1
+printing ALL  1
+printing ALL  1
 
-Enter command: Silas Marner 456
 
-Enter command: Information for 3 people:
-Elton John 789
-Tom Jones 123
-Silas Marner 456
+clear
+size = 0
+empty? 1
+finding 1  finding 1    not found
+0
+add one to ALL
+minus one to all
+stop 5  0
+stop 5   0
 
-Enter command: Room 1001 added
 
-Enter command: Room 1002 added
+insert four
+size = 1
+empty? 0
+finding 1  finding 1    not found
+0
+add one to ALL
+printing ALL  5
+minus one to all
+printing ALL  4
+stop 5  0
+stop 5   0
+printing ALL  4
 
-Enter command: Meeting added at 10
 
-Enter command: Meeting added at 2
+insert five
+size = 2
+empty? 0
+finding 1  finding 1    not found
+0
+add one to ALL
+printing ALL  5
+printing ALL  6
+minus one to all
+printing ALL  4
+printing ALL  5
+stop 5  find 55
+5
+stop 5   find 55
+printing ALL  4
+printing ALL  5
 
-Enter command: Participant Jones added
 
-Enter command: Participant John added
 
-Enter command: --- Room 1001 ---
-Meeting time: 10, Topic: Music
-Participants:
-Elton John 789
-Tom Jones 123
-Meeting time: 2, Topic: Literature
-Participants: None
+delete 5
+1
+empty? 0
+finding 1  finding 1    not found
+0
+add one to ALL
+printing ALL  5
+minus one to all
+printing ALL  4
+stop 5  0
+stop 5   0
+printing ALL  4
+printing ALL  3
+printing ALL  4
+printing ALL  4
+finding 5    found 5
+finding 5    found 5
+finding 3    found 3
+finding 3    found 3
+finding 6    found 6
+finding 6    found 6
+finding 2    found 2
+finding 2    found 2
+5
+empty? 0
+finding 1  finding 1    not found
+0
+add one to ALL
+printing ALL  3
+printing ALL  4
+printing ALL  5
+printing ALL  6
+printing ALL  7
+minus one to all
+printing ALL  2
+printing ALL  3
+printing ALL  4
+printing ALL  5
+printing ALL  6
+stop 5  find 55
+5
+stop 5   find 55
+printing ALL  2
+printing ALL  3
+printing ALL  4
+printing ALL  5
+printing ALL  6
+printing ALL  2
+printing ALL  3
+printing ALL  4
+printing ALL  5
+printing ALL  6
 
-Enter command: --- Room 1002 ---
-No meetings are scheduled
 
-Enter command: Meeting time: 10, Topic: Music
-Participants:
-Elton John 789
-Tom Jones 123
+finding -2    not found
+finding -2    not found
+finding -1    not found
+finding -1    not found
+finding 0    not found
+finding 0    not found
+finding 1    not found
+finding 1    not found
+finding 2    not found
+finding 2    not found
+finding 3    found 3
+finding 3    found 3
+finding 4    found 4
+finding 4    found 4
+finding 5    found 5
+finding 5    found 5
+finding 6    found 6
+finding 6    found 6
+finding 7    not found
+finding 7    not found
+finding 8    not found
+finding 8    not found
+finding 9    not found
+finding 9    not found
+finding -2    not found
+finding -2    not found
+finding -1    not found
+finding -1    not found
+finding 0    not found
+finding 0    not found
+finding 1    not found
+finding 1    not found
+finding 2    not found
+finding 2    not found
+finding 3    found 3
+finding 3    found 3
+finding 4    found 4
+finding 4    found 4
+finding 5    found 5
+finding 5    found 5
+finding 6    not found
+finding 6    not found
+finding 7    not found
+finding 7    not found
+finding 8    not found
+finding 8    not found
+finding 9    not found
+finding 9    not found
+printing ALL  3
+printing ALL  4
+printing ALL  5
 
-Enter command: Meeting time: 2, Topic: Literature
-Participants: None
 
-Enter command: Memory allocations:
-C-strings: 63 bytes total
-Person structs: 3
-Meeting structs: 2
-Room structs: 2
-Containers: 6
-Container items in use: 9
-Container items allocated: 18
-
-Enter command: Data saved
-
-Enter command: Data loaded
-
-Enter command: Information for 2 rooms:
---- Room 1001 ---
-Meeting time: 10, Topic: Music
-Participants:
-Elton John 789
-Tom Jones 123
-Meeting time: 2, Topic: Literature
-Participants: None
---- Room 1002 ---
-No meetings are scheduled
-
-Enter command: Memory allocations:
-C-strings: 63 bytes total
-Person structs: 3
-Meeting structs: 2
-Room structs: 2
-Containers: 6
-Container items in use: 9
-Container items allocated: 18
-
-Enter command: Meeting rescheduled to room 1002 at 3
-
-Enter command: Information for 2 rooms:
---- Room 1001 ---
-Meeting time: 2, Topic: Literature
-Participants: None
---- Room 1002 ---
-Meeting time: 3, Topic: Music
-Participants:
-Elton John 789
-Tom Jones 123
-
-Enter command: Person Marner deleted
-
-Enter command: Participant John deleted
-
-Enter command: Information for 2 rooms:
---- Room 1001 ---
-Meeting time: 2, Topic: Literature
-Participants: None
---- Room 1002 ---
-Meeting time: 3, Topic: Music
-Participants:
-Tom Jones 123
-
-Enter command: Meeting at 3 deleted
-
-Enter command: --- Room 1002 ---
-No meetings are scheduled
-
-Enter command: Room 1001 deleted
-
-Enter command: Memory allocations:
-C-strings: 29 bytes total
-Person structs: 2
-Meeting structs: 0
-Room structs: 1
-Containers: 3
-Container items in use: 3
-Container items allocated: 9
-
-Enter command: Data saved
-
-Enter command: Data loaded
-
-Enter command: Information for 1 rooms:
---- Room 1002 ---
-No meetings are scheduled
-
-Enter command: All meetings deleted
-
-Enter command: All persons deleted
-
-Enter command: All meetings deleted
-All rooms deleted
-All persons deleted
-
-Enter command: Memory allocations:
-C-strings: 0 bytes total
-Person structs: 0
-Meeting structs: 0
-Room structs: 0
-Containers: 2
-Container items in use: 0
-Container items allocated: 6
-
-Enter command: All meetings deleted
-All rooms deleted
-All persons deleted
-Done
+finding -2    not found
+finding -2    not found
+finding -1    not found
+finding -1    not found
+finding 0    not found
+finding 0    not found
+finding 1    not found
+finding 1    not found
+finding 2    not found
+finding 2    not found
+finding 3    found 3
+finding 3    found 3
+finding 4    found 4
+finding 4    found 4
+finding 5    not found
+finding 5    not found
+finding 6    not found
+finding 6    not found
+finding 7    not found
+finding 7    not found
+finding 8    not found
+finding 8    not found
+finding 9    not found
+finding 9    not found
+printing ALL  3
+printing ALL  4
+finding -2    not found
+finding -2    not found
+finding -1    not found
+finding -1    not found
+finding 0    not found
+finding 0    not found
+finding 1    not found
+finding 1    not found
+finding 2    not found
+finding 2    not found
+finding 3    found 3
+finding 3    found 3
+finding 4    found 4
+finding 4    found 4
+finding 5    not found
+finding 5    not found
+finding 6    found 6
+finding 6    found 6
+finding 7    not found
+finding 7    not found
+finding 8    not found
+finding 8    not found
+finding 9    not found
+finding 9    not found
+printing ALL  3
+printing ALL  4
+printing ALL  6
+finding -2    not found
+finding -2    not found
+finding -1    not found
+finding -1    not found
+finding 0    not found
+finding 0    not found
+finding 1    not found
+finding 1    not found
+finding 2    found 2
+finding 2    found 2
+finding 3    found 3
+finding 3    found 3
+finding 4    found 4
+finding 4    found 4
+finding 5    not found
+finding 5    not found
+finding 6    found 6
+finding 6    found 6
+finding 7    not found
+finding 7    not found
+finding 8    not found
+finding 8    not found
+finding 9    not found
+finding 9    not found
+printing ALL  2
+printing ALL  3
+printing ALL  4
+printing ALL  6
+finding -2    not found
+finding -2    not found
+finding -1    not found
+finding -1    not found
+finding 0    not found
+finding 0    not found
+finding 1    not found
+finding 1    not found
+finding 2    found 2
+finding 2    found 2
+finding 3    found 3
+finding 3    found 3
+finding 4    found 4
+finding 4    found 4
+finding 5    found 5
+finding 5    found 5
+finding 6    found 6
+finding 6    found 6
+finding 7    not found
+finding 7    not found
+finding 8    not found
+finding 8    not found
+finding 9    not found
+finding 9    not found
+printing ALL  2
+printing ALL  3
+printing ALL  4
+printing ALL  5
+printing ALL  6
+finding -2    not found
+finding -2    not found
+finding -1    not found
+finding -1    not found
+finding 0    not found
+finding 0    not found
+finding 1    not found
+finding 1    not found
+finding 2    found 2
+finding 2    found 2
+finding 3    found 3
+finding 3    found 3
+finding 4    found 4
+finding 4    found 4
+finding 5    found 5
+finding 5    found 5
+finding 6    found 6
+finding 6    found 6
+finding 7    not found
+finding 7    not found
+finding 8    not found
+finding 8    not found
+finding 9    not found
+finding 9    not found
+printing ALL  2
+printing ALL  3
+printing ALL  4
+printing ALL  5
+printing ALL  5
+printing ALL  6
+finding -2    not found
+finding -2    not found
+finding -1    not found
+finding -1    not found
+finding 0    not found
+finding 0    not found
+finding 1    not found
+finding 1    not found
+finding 2    found 2
+finding 2    found 2
+finding 3    found 3
+finding 3    found 3
+finding 4    found 4
+finding 4    found 4
+finding 5    found 5
+finding 5    found 5
+finding 6    found 6
+finding 6    found 6
+finding 7    not found
+finding 7    not found
+finding 8    not found
+finding 8    not found
+finding 9    not found
+finding 9    not found
+printing ALL  2
+printing ALL  3
+printing ALL  4
+printing ALL  5
+printing ALL  5
+printing ALL  5
+printing ALL  6
+finding -2    not found
+finding -2    not found
+finding -1    not found
+finding -1    not found
+finding 0    not found
+finding 0    not found
+finding 1    not found
+finding 1    not found
+finding 2    found 2
+finding 2    found 2
+finding 3    found 3
+finding 3    found 3
+finding 4    found 4
+finding 4    found 4
+finding 5    found 5
+finding 5    found 5
+finding 6    found 6
+finding 6    found 6
+finding 7    not found
+finding 7    not found
+finding 8    not found
+finding 8    not found
+finding 9    not found
+finding 9    not found
+finding -2    not found
+finding -2    not found
+finding -1    not found
+finding -1    not found
+finding 0    not found
+finding 0    not found
+finding 1    not found
+finding 1    not found
+finding 2    found 2
+finding 2    found 2
+finding 3    found 3
+finding 3    found 3
+finding 4    found 4
+finding 4    found 4
+finding 5    found 5
+finding 5    found 5
+finding 6    found 6
+finding 6    found 6
+finding 7    not found
+finding 7    not found
+finding 8    not found
+finding 8    not found
+finding 9    not found
+finding 9    not found
+printing ALL  2
+printing ALL  3
+printing ALL  4
+printing ALL  5
+printing ALL  5
+printing ALL  6
+finding -2    not found
+finding -2    not found
+finding -1    not found
+finding -1    not found
+finding 0    not found
+finding 0    not found
+finding 1    not found
+finding 1    not found
+finding 2    found 2
+finding 2    found 2
+finding 3    found 3
+finding 3    found 3
+finding 4    found 4
+finding 4    found 4
+finding 5    found 5
+finding 5    found 5
+finding 6    not found
+finding 6    not found
+finding 7    not found
+finding 7    not found
+finding 8    not found
+finding 8    not found
+finding 9    not found
+finding 9    not found
+printing ALL  2
+printing ALL  3
+printing ALL  4
+printing ALL  5
+printing ALL  5
+finding -2    not found
+finding -2    not found
+finding -1    not found
+finding -1    not found
+finding 0    not found
+finding 0    not found
+finding 1    not found
+finding 1    not found
+finding 2    found 2
+finding 2    found 2
+finding 3    not found
+finding 3    not found
+finding 4    found 4
+finding 4    found 4
+finding 5    found 5
+finding 5    found 5
+finding 6    not found
+finding 6    not found
+finding 7    not found
+finding 7    not found
+finding 8    not found
+finding 8    not found
+finding 9    not found
+finding 9    not found
+printing ALL  2
+printing ALL  4
+printing ALL  5
+printing ALL  5
+finding -2    not found
+finding -2    not found
+finding -1    not found
+finding -1    not found
+finding 0    not found
+finding 0    not found
+finding 1    not found
+finding 1    not found
+finding 2    found 2
+finding 2    found 2
+finding 3    found 3
+finding 3    found 3
+finding 4    found 4
+finding 4    found 4
+finding 5    found 5
+finding 5    found 5
+finding 6    not found
+finding 6    not found
+finding 7    not found
+finding 7    not found
+finding 8    not found
+finding 8    not found
+finding 9    not found
+finding 9    not found
+printing ALL  2
+printing ALL  3
+printing ALL  4
+printing ALL  5
+printing ALL  5
+finding -2    not found
+finding -2    not found
+finding -1    not found
+finding -1    not found
+finding 0    not found
+finding 0    not found
+finding 1    not found
+finding 1    not found
+finding 2    found 2
+finding 2    found 2
+finding 3    found 3
+finding 3    found 3
+finding 4    found 4
+finding 4    found 4
+finding 5    found 5
+finding 5    found 5
+finding 6    not found
+finding 6    not found
+finding 7    not found
+finding 7    not found
+finding 8    not found
+finding 8    not found
+finding 9    not found
+finding 9    not found
+printing ALL  2
+printing ALL  3
+printing ALL  4
+printing ALL  5
+finding -2    not found
+finding -2    not found
+finding -1    not found
+finding -1    not found
+finding 0    not found
+finding 0    not found
+finding 1    not found
+finding 1    not found
+finding 2    found 2
+finding 2    found 2
+finding 3    found 3
+finding 3    found 3
+finding 4    found 4
+finding 4    found 4
+finding 5    found 5
+finding 5    found 5
+finding 6    not found
+finding 6    not found
+finding 7    found 7
+finding 7    found 7
+finding 8    not found
+finding 8    not found
+finding 9    not found
+finding 9    not found
+printing ALL  2
+printing ALL  3
+printing ALL  4
+printing ALL  5
+printing ALL  7
+finding -2    not found
+finding -2    not found
+finding -1    not found
+finding -1    not found
+finding 0    not found
+finding 0    not found
+finding 1    not found
+finding 1    not found
+finding 2    not found
+finding 2    not found
+finding 3    not found
+finding 3    not found
+finding 4    not found
+finding 4    not found
+finding 5    not found
+finding 5    not found
+finding 6    not found
+finding 6    not found
+finding 7    not found
+finding 7    not found
+finding 8    not found
+finding 8    not found
+finding 9    not found
+finding 9    not found

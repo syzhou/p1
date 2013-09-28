@@ -16,7 +16,10 @@ struct Person {
 This is the only function that allocates dynamic memory for a Person
 and the contained data. */
 struct Person* create_Person(const char* firstname, const char* lastname, const char* phoneno) {
-	struct Person* newPerson = malloc(sizeof(struct Person));
+	struct Person* newPerson;
+	if (!(newPerson = malloc(sizeof(struct Person)))) {
+		printErrBadMallocExit();
+	}
 	newPerson->firstname = strAllocCpy(firstname);
 	newPerson->lastname = strAllocCpy(lastname);
 	newPerson->phoneno = strAllocCpy(phoneno);
@@ -60,6 +63,7 @@ struct Person* load_Person(FILE* infile) {
 	char firstnameBuf[BUFFER_SIZE];
 	char lastnameBuf[BUFFER_SIZE];
 	char phonenoBuf[BUFFER_SIZE];
+	/* Read the strings and check read status*/
 	if (SAFEFSCANF(infile, firstnameBuf) == EOF) {
 		return NULL;
 	}

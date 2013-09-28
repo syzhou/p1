@@ -1,5 +1,6 @@
 #include "Ordered_container.h"
 #include "p1_globals.h"
+#include "Utility.h"
 
 #include <stdlib.h>
 
@@ -19,7 +20,10 @@ void OCInit(struct Ordered_container* cPtr);
 int binarySearch(const struct Ordered_container* cPtr, const void* dataPtr, OC_BSearch_fp_t comp_func);
 /* Create an empty container using the supplied comparison function, and return the pointer to it. */
 struct Ordered_container* OC_create_container(OC_comp_fp_t comp_func) {
-	struct Ordered_container* newOC = malloc(sizeof(struct Ordered_container));
+	struct Ordered_container* newOC;
+	if (!(newOC = malloc(sizeof(struct Ordered_container)))) {
+		printErrBadMallocExit();
+	}
 	newOC->comp_fun = comp_func;
 	OCInit(newOC);
 	g_Container_count++;
@@ -28,7 +32,9 @@ struct Ordered_container* OC_create_container(OC_comp_fp_t comp_func) {
 
 void OCInit(struct Ordered_container* cPtr) {
 	g_Container_items_allocated += 3;
-	cPtr->array = malloc(3 * sizeof(void*));
+	if (!(cPtr->array = malloc(3 * sizeof(void*)))) {
+		printErrBadMallocExit();
+	}
 	cPtr->allocation = 3;
 	cPtr->size = 0;
 }
@@ -79,8 +85,10 @@ void* OC_get_data_ptr(const void* item_ptr){
 /* Delete the specified item.
 Caller is responsible for any deletion of the data pointed to by the item. */
 void OC_delete_item(struct Ordered_container* c_ptr, void* item_ptr) {
+	/* Pointer sentinel to stop copying */
 	void **endPtr = c_ptr->array + c_ptr->size - 1;
 	void **iterPtr = (void**)item_ptr;
+	/* Move all items after the deleted one up */
 	while (iterPtr != endPtr) {
 		*iterPtr = *(iterPtr + 1);
 		iterPtr++;
@@ -101,21 +109,29 @@ If there is already an item in the container that compares equal to new item acc
 the comparison function, the order of the new item relative to the existing item is not specified. */
 void OC_insert(struct Ordered_container* c_ptr, void* data_ptr) {
 	int size = c_ptr->size;
+	/* If the original array if full, allocate a bigger one, copy
+	 * all the elements to the new one and delete the old one.
+	 */
 	if (size == c_ptr->allocation) {
 		int newAlloctation = 2 * (size + 1);
 		int i;
 		void** oldArrayPtr = c_ptr->array;
 		g_Container_items_allocated += c_ptr->allocation + 1;
-		c_ptr->array = malloc(newAlloctation * sizeof(void*));
+		if (!(c_ptr->array = malloc(newAlloctation * sizeof(void*)))) {
+			printErrBadMallocExit();
+		}
+		/* Copy the old array to the new one*/
 		for (i = 0; i < size; i++) {
 			*(c_ptr->array + i) = *(oldArrayPtr + i);
 		}
 		free(oldArrayPtr);
 		c_ptr->allocation = newAlloctation;
 	}
+	/* Do the real insertion*/
 	{
 		void **iterPtr = c_ptr->array + size - 1;
 		void **endPtr = c_ptr->array + binarySearch(c_ptr, data_ptr, (OC_BSearch_fp_t)c_ptr->comp_fun);
+		/*Move all the elements 'down' after the inserted position by one*/
 		while (iterPtr >= endPtr) {
 			*(iterPtr+1) = *iterPtr;
 			iterPtr--;
@@ -126,6 +142,11 @@ void OC_insert(struct Ordered_container* c_ptr, void* data_ptr) {
 	}
 
 }
+
+/* Search the dataPtr in the array. Returns the position of item that is
+ * greater or equal to the dataPtr. If the dataPtr is greater than all
+ * the items in the array or if the array is empty, return array size.
+ */
 int binarySearch(const struct Ordered_container* cPtr, const void* dataPtr, OC_BSearch_fp_t comp_func) {
 	int left = 0;
 	int right = OC_get_size(cPtr) - 1;
@@ -143,6 +164,7 @@ int binarySearch(const struct Ordered_container* cPtr, const void* dataPtr, OC_B
 			left = mid + 1;
 		}
 	}
+	/* If not found, return the position the item should be inserted*/
 	return right + 1;
 }
 /* Return a pointer to an item that points to data equal to the data object pointed to by data_ptr,
@@ -151,6 +173,7 @@ The data_ptr object is assumed to be of the same type as the data objects pointe
 NULL is returned if no matching item is found. If more than one matching item is present, it is
 unspecified which one is returned. */
 void* OC_find_item(const struct Ordered_container* c_ptr, const void* data_ptr){
+	/*Just call OC_find_item_arg with the default compare function in OC*/
 	return OC_find_item_arg(c_ptr, data_ptr, (OC_find_item_arg_fp_t)c_ptr->comp_fun);
 }
 

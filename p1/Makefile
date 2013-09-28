@@ -28,7 +28,7 @@ LD = gcc
 CFLAGS = -c -ansi -std=c89 -pedantic -Wmissing-prototypes -Wall
 LFLAGS = -pedantic -Wall
 
-OBJS = p1_main.o Person.o Meeting.o Room.o p1_globals.o Utility.o
+OBJS = testContainer1.o Person.o Meeting.o Room.o p1_globals.o Utility.o
 OBJS_L = Ordered_container_list.o
 OBJS_A = Ordered_container_array.o
 EX_L = p1Lexe
@@ -46,9 +46,9 @@ $(EX_A): $(OBJS) $(OBJS_A)
 	$(LD) $(LFLAGS) $(OBJS) $(OBJS_A) -o $(EX_A)
 
 # to build this object module, check the timestamps of what it depends on, and
-# if any are more recent than an existing p1_main.o, then recompile p1_main.c
-p1_main.o: p1_main.c Ordered_container.h Person.h Meeting.h Room.h p1_globals.h Utility.h
-	$(CC) $(CFLAGS) p1_main.c
+# if any are more recent than an existing testContainer1.o, then recompile testContainer1.c
+testContainer1.o: testContainer1.c Ordered_container.h Person.h Meeting.h Room.h p1_globals.h Utility.h
+	$(CC) $(CFLAGS) testContainer1.c
 
 Ordered_container_list.o: Ordered_container_list.c Ordered_container.h p1_globals.h Utility.h
 	$(CC) $(CFLAGS) Ordered_container_list.c

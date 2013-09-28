@@ -1,0 +1,141 @@
+#include "Room.h"
+#include "Utility.h"
+#include "Meeting.h"
+#include "Ordered_container.h"
+
+#include <stdlib.h>
+
+
+/* a Room contains a container of meetings and a room number */
+struct Room {
+	struct Ordered_container* meetings;	/* a container of pointers to Meeting objects */
+	int number;
+};
+
+int compareMeeting (const struct Meeting* meeting1, const struct Meeting* meeting2);
+
+/* Create a Room object.
+This is the only function that allocates memory for a Room
+and the contained data. */
+struct Room* create_Room(int number) {
+	struct Room* newRoom;
+	if (!(newRoom = malloc(sizeof(struct Room)))) {
+		printErrBadMallocExit();
+	}
+	newRoom->meetings = OC_create_container((OC_comp_fp_t)compareMeeting);
+	newRoom->number = number;
+	return newRoom;
+}
+
+/* Compares two meetings with their time.
+ * Return negative, zero or positive if the first meeting compares
+ * lesser, equal or larger than the second one.
+ */
+int compareMeeting (const struct Meeting* meeting1, const struct Meeting* meeting2) {
+	return compareTime(get_Meeting_time(meeting1), get_Meeting_time(meeting2));
+}
+
+/* Destroy a Room object.
+This is the only function that frees the memory for a Room
+and the contained data. The Meetings are destroyed before the
+Meeting list is emptied. */
+void destroy_Room(struct Room* room_ptr) {
+	OC_destroy_container(room_ptr->meetings);
+	free(room_ptr);
+}
+
+/* Return the room number. */
+int get_Room_number(const struct Room* room_ptr) {
+	return room_ptr->number;
+}
+
+/* Add the meeting to the room, return non-zero if a meeting already at that time, 0 if OK. */
+int add_Room_Meeting(struct Room* room_ptr, const struct Meeting* meeting_ptr) {
+	if (OC_find_item(room_ptr->meetings, (void *)meeting_ptr)) {
+		return 1;
+	}
+	OC_insert(room_ptr->meetings, (void *)meeting_ptr);
+	return 0;
+}
+
+/* Return a pointer to the meeting at the specified time, NULL if not present. */
+struct Meeting* find_Room_Meeting(const struct Room* room_ptr, int time) {
+	/* A fake object just for searching. Deleted after search*/
+	struct Meeting* soughtForMeeting = create_Meeting(time, NULL);
+	void* itemPtr = OC_find_item(get_Room_Meetings(room_ptr), (void *)soughtForMeeting);
+	destroy_Meeting(soughtForMeeting);
+	if (itemPtr) {
+		return (struct Meeting*) OC_get_data_ptr(itemPtr);
+	} else {
+		return NULL;
+	}
+}
+
+/* Remove the supplied meeting from the room; return non-zero if not there; 0 if OK.
+The meeting is not destroyed because we may need to place it into another room. */
+int remove_Room_Meeting(struct Room* room_ptr, const struct Meeting* meeting_ptr) {
+	void* itemPtr = OC_find_item(get_Room_Meetings(room_ptr), (void *)meeting_ptr);
+	if (itemPtr) {
+		OC_delete_item(room_ptr->meetings, itemPtr);
+		return 0;
+	} else {
+		return 1;
+	}
+}
+
+/* Clear and destroy the Meetings in a Room.
+This function destroys each meeting and leaves the Room empty of meetings. */
+void clear_Room(struct Room* room_ptr) {
+	OC_apply(room_ptr->meetings, (OC_apply_fp_t)destroy_Meeting);
+	OC_clear(room_ptr->meetings);
+}
+
+/* Return a pointer to the const container of meetings for read-only iterations over the meetings. */
+const struct Ordered_container* get_Room_Meetings(const struct Room* room_ptr) {
+	return (const struct Ordered_container*)room_ptr->meetings;
+}
+
+/* Print the data in a struct Room. */
+void print_Room(const struct Room* room_ptr) {
+	printf("--- Room %d ---\n", get_Room_number(room_ptr));
+	if (OC_empty(get_Room_Meetings(room_ptr))) {
+		printf("No meetings are scheduled\n");
+	}
+	OC_apply(get_Room_Meetings(room_ptr), (OC_apply_fp_t)print_Meeting);
+}
+
+/* Write the room data to a file. */
+void save_Room(const struct Room* room_ptr, FILE* outfile) {
+	fprintf(outfile, "%d %d\n", get_Room_number(room_ptr),
+			OC_get_size(get_Room_Meetings(room_ptr)));
+	OC_apply_arg(get_Room_Meetings(room_ptr), (OC_apply_arg_fp_t)save_Meeting, outfile);
+}
+
+/* Read a room's data from a file stream, create the data object and
+return a pointer to it, NULL if invalid data discovered in file.
+No check made for whether the room already exists or not. */
+struct Room* load_Room(FILE* infile, const struct Ordered_container* people) {
+	int roomNum;
+	int meetingCnt;
+	int i;
+	struct Room* newRoom;
+	/*Read room number and number of meetings. Check if read successful*/
+	if ((fscanf(infile, "%d", &roomNum) != 1)) {
+		return NULL;
+	}
+	if (fscanf(infile, "%d", &meetingCnt) != 1) {
+		return NULL;
+	}
+	newRoom = create_Room(roomNum);
+	for (i = 0; i < meetingCnt; i++) {
+		struct Meeting* newMeeting;
+		if ((newMeeting = load_Meeting(infile, people))	) {
+			add_Room_Meeting(newRoom, newMeeting);
+		} else {
+			clear_Room(newRoom);
+			destroy_Room(newRoom);
+			return NULL;
+		}
+	}
+	return newRoom;
+}

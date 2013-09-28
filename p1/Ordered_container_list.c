@@ -1,5 +1,7 @@
 #include "Ordered_container.h"
 #include "p1_globals.h"
+#include "Utility.h"
+
 
 #include <stdlib.h>
 
@@ -34,13 +36,23 @@ struct LL_Node* OCFindItemLesserThan(const struct Ordered_container* cPtr, const
 
 /* Create an empty container using the supplied comparison function, and return the pointer to it. */
 struct Ordered_container* OC_create_container(OC_comp_fp_t comp_func) {
-	struct Ordered_container* newContainer = malloc(sizeof(struct Ordered_container));
+	struct Ordered_container* newContainer;
+	if (!(newContainer = malloc(sizeof(struct Ordered_container)))) {
+		printErrBadMallocExit();
+	}
 	newContainer->comp_func = comp_func;
-	newContainer->first = NULL;
-	newContainer->last = NULL;
-	newContainer->size = 0;
+	OCInit(newContainer);
 	g_Container_count++;
 	return newContainer;
+}
+
+/* Initialize an ordered container.
+ * takes a pointer to the container as parameter.
+ */
+void OCInit(struct Ordered_container * cPtr) {
+	cPtr -> size = 0;
+	cPtr -> first = NULL;
+	cPtr -> last = NULL;
 }
 
 /* Destroy the container and its items; caller is responsible for 
@@ -50,6 +62,21 @@ void OC_destroy_container(struct Ordered_container* c_ptr) {
 	OCDeleteAllItems(c_ptr);
 	free(c_ptr);
 	g_Container_count--;
+}
+
+/* Delete all the items in the container, but does not delete the container itself;
+ * the function takes a pointer to the container as the parameter.
+ */
+void OCDeleteAllItems(struct Ordered_container* cPtr) {
+	int i = 0, size = cPtr->size;
+	struct LL_Node* ptrToDelete = cPtr->first;
+	for (; i < size; i++) {
+		struct LL_Node* nextPtr = ptrToDelete->next;
+		free(ptrToDelete);
+		ptrToDelete = nextPtr;
+		g_Container_items_allocated--;
+		g_Container_items_in_use--;
+	}
 }
 
 /* Delete all the items in the container and initialize it. 
@@ -86,6 +113,10 @@ void* OC_get_data_ptr(const void* item_ptr) {
 Caller is responsible for any deletion of the data pointed to by the item. */
 void OC_delete_item(struct Ordered_container* c_ptr, void* item_ptr) {
 	struct LL_Node* item = (struct LL_Node*)item_ptr;
+	/* If the item isn't the last one, assign the next one's prev to the prev.
+	 * Otherwise, if the item is the last one, we need to change last pointer
+	 * in Container to be the one before the deleted one.
+	 */
 	if (item->next) {
 		item->next->prev = item->prev;
 	} else {
@@ -110,10 +141,19 @@ Functions that search and insert into the container using the supplied compariso
 If there is already an item in the container that compares equal to new item according to
 the comparison function, the order of the new item relative to the existing item is not specified. */
 void OC_insert(struct Ordered_container* c_ptr, void* data_ptr) {
-	struct LL_Node* newNode = malloc(sizeof(struct LL_Node));
-	struct LL_Node* prevNode = OCFindItemLesserThan(c_ptr, data_ptr);
+	struct LL_Node* newNode;
+	struct LL_Node* prevNode;
+	if (!(newNode = malloc(sizeof(struct LL_Node)))) {
+		printErrBadMallocExit();
+	}
+	prevNode = OCFindItemLesserThan(c_ptr, data_ptr);
 	newNode->data_ptr = data_ptr;
 	newNode->prev = prevNode;
+	/* If list was empty, assign the first and last pointer to the inserted one
+	 * Otherwise, if there are items before the inserted one, assign its next pointer.
+	 * Or, if there aren't any items before the inserted one, meaning there must be
+	 * items after the inserted one, deal with the first pointer and the new item.
+	 */
 	if (OC_empty(c_ptr)) {
 		newNode->next = NULL;
 		c_ptr->first = newNode;
@@ -137,10 +177,40 @@ void OC_insert(struct Ordered_container* c_ptr, void* data_ptr) {
 	g_Container_items_in_use++;
 }
 
+/* Find the item that compares equal to the given item;
+ * takes the item pointer and the ordered container pointer as parameters;
+ * returns the pointer to the item that is lesser or equal to the pointer,
+ * returns NULL if the size is zero or if all the items in the container
+ * lesser than the given item
+ */
+struct LL_Node* OCFindItemLesserThan(const struct Ordered_container* cPtr, const void* dataPtr) {
+	struct LL_Node* itemPtrItr;
+	if (OC_empty(cPtr)) {
+		return NULL;
+	}
+	itemPtrItr = cPtr->first;
+	/* From the first item, compare every data in the list with the sought-for.*/
+	while(itemPtrItr) {
+		if (cPtr->comp_func(dataPtr, OC_get_data_ptr(itemPtrItr)) >= 0) {
+			itemPtrItr = itemPtrItr->next;
+		} else {
+			/* Stop if the data in the list is already larger than the
+			 * sought-for item.
+			 */
+			break;
+		}
+	}
+	if (itemPtrItr) {
+		return itemPtrItr->prev;
+	} else {
+		return cPtr->last;
+	}
+}
+
 /* Return a pointer to an item that points to data equal to the data object pointed to by data_ptr,
 using the ordering function to do the comparison with data_ptr as the first argument.
 The data_ptr object is assumed to be of the same type as the data objects pointed to by container items.
-NULL is returned if no matching item is found. If more than one matching item is present, it is 
+NULL is returned if no matching item is found. If more than one matching item is present, it is
 unspecified which one is returned. */
 void* OC_find_item(const struct Ordered_container* c_ptr, const void* data_ptr) {
 	struct LL_Node* foundItemPtr = OCFindItemLesserThan(c_ptr, data_ptr);
@@ -165,6 +235,10 @@ void* OC_find_item_arg(const struct Ordered_container* c_ptr, const void* arg_pt
 		return NULL;
 	}
 	itemPtrItr = c_ptr->first;
+	/* From the first item, compare every data in the list with the sought-for.
+	 * If compares equal return. If the data in the list is larger than sought-for
+	 * item, break and return NULL;
+	 */
 	while(itemPtrItr) {
 		if (fafp(arg_ptr, OC_get_data_ptr(itemPtrItr)) == 0) {
 			return itemPtrItr;
@@ -224,54 +298,3 @@ int OC_apply_if_arg(const struct Ordered_container* c_ptr, OC_apply_if_arg_fp_t 
 		}
 		return returnValue;
 }
-
-/* Initialize an ordered container.
- * takes a pointer to the container as parameter.
- */
-void OCInit(struct Ordered_container * cPtr) {
-	cPtr -> size = 0;
-	cPtr -> first = NULL;
-	cPtr -> last = NULL;
-}
-
-/* Delete all the items in the container, but does not delete the container itself;
- * the function takes a pointer to the container as the parameter.
- */
-void OCDeleteAllItems(struct Ordered_container* cPtr) {
-	int i = 0, size = cPtr->size;
-	struct LL_Node* ptrToDelete = cPtr->first;
-	for (; i < size; i++) {
-		struct LL_Node* nextPtr = ptrToDelete->next;
-		free(ptrToDelete);
-		ptrToDelete = nextPtr;
-		g_Container_items_allocated--;
-		g_Container_items_in_use--;
-	}
-}
-
-/* Find the item that compares equal to the given item;
- * takes the item pointer and the ordered container pointer as parameters;
- * returns the pointer to the item that is lesser or equal to the pointer,
- * returns NULL if the size is zero or if all the items in the container
- * lesser than the given item
- */
-struct LL_Node* OCFindItemLesserThan(const struct Ordered_container* cPtr, const void* dataPtr) {
-	struct LL_Node* itemPtrItr;
-	if (OC_empty(cPtr)) {
-		return NULL;
-	}
-	itemPtrItr = cPtr->first;
-	while(itemPtrItr) {
-		if (cPtr->comp_func(dataPtr, OC_get_data_ptr(itemPtrItr)) >= 0) {
-			itemPtrItr = itemPtrItr->next;
-		} else {
-			break;
-		}
-	}
-	if (itemPtrItr) {
-		return itemPtrItr->prev;
-	} else {
-		return cPtr->last;
-	}
-}
-

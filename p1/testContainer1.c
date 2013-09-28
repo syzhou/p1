@@ -6,8 +6,8 @@
 #define PRINT(i) printf("%d\n", i)
 struct Ordered_container* numbers;
 int compare(int *a, int* b);
-int find(int a);
-int findArg(int a);
+int find(const int a);
+int findArg(const int a);
 void addOneAll(int* a);
 void addSomeAll(int* a, int* b);
 void printAll(int* a);
@@ -17,9 +17,9 @@ int stopAtSome(int* a, int* b);
 int compare(int *a, int* b) {
 	return (*a - *b);
 }
-int find(int a) {
-	printf("finding %d    ", a);
+int find(const int a) {
 	void* itemPtr = OC_find_item(numbers, &a);
+	printf("finding %d    ", a);
 	if (itemPtr) {
 		printf("found %d\n", *((int*)(OC_get_data_ptr(itemPtr))));
 	} else {
@@ -27,11 +27,17 @@ int find(int a) {
 	}
 	return 0;
 }
-int findArg(int a) {
+int findArg(const int a) {
 	void* itemPtr = OC_find_item_arg(numbers, &a, (OC_find_item_arg_fp_t)compare);
+	printf("finding %d    ", a);
+
 	if (itemPtr) {
+		printf("found %d\n", *((int*)(OC_get_data_ptr(itemPtr))));
+
 		return *((int*)(OC_get_data_ptr(itemPtr)));
 	} else {
+		printf("not found\n");
+
 		return 0;
 	}
 }
@@ -61,8 +67,15 @@ int stopAtSome(int* a, int* b) {
 	return 0;
 }
 
+void findAll() {
+	int i = -2;
+	for (i = -2; i < 10; i++) {
+		find(i);
+		findArg(i);
+	}
+
+}
 int main() {
-	numbers = OC_create_container((OC_comp_fp_t)compare);
 	int one = 1;
 	int minus1  = -1;
 	int a1= 1;
@@ -73,6 +86,7 @@ int main() {
 	int a6 = 6;
 	int a7 = 7;
 	int a8 = 8;
+	numbers = OC_create_container((OC_comp_fp_t)compare);
 	OC_clear(numbers);
 	PRINT(OC_get_size(numbers));
 	PRINT(OC_empty(numbers));
@@ -240,17 +254,87 @@ int main() {
 	OC_insert(numbers, &a2);
 	OC_insert(numbers, &a5);
 	find(5);
+	findArg(5);
 	find(3);
+	findArg(3);
 	find(6);
+	findArg(6);
+
 	find(2);
+	findArg(2);
+
+	PRINT(OC_get_size(numbers));
+		printf("empty? ");
+		PRINT(OC_empty(numbers));
+		printf("finding 1  ");
+		PRINT(find(1));
+		printf("add one to ALL\n");
+		OC_apply(numbers, (OC_apply_fp_t)addOneAll);
+		OC_apply(numbers, (OC_apply_fp_t)printAll);
+		printf("minus one to all\n");
+		OC_apply_arg(numbers, (OC_apply_arg_fp_t)addSomeAll, &minus1);
+		OC_apply(numbers, (OC_apply_fp_t)printAll);
+		printf("stop 5  ");
+		PRINT(OC_apply_if(numbers, (OC_apply_if_fp_t)stopAt5));
+		printf("stop 5   ");
+		PRINT(OC_apply_if_arg(numbers, (OC_apply_if_arg_fp_t)stopAtSome, &a5));
+		OC_apply(numbers, (OC_apply_fp_t)printAll);
+
+
 	OC_apply(numbers, (OC_apply_fp_t)printAll);
 	printf("\n\n");
 	OC_delete_item(numbers, OC_find_item(numbers, &a2));
+	findAll();
 	OC_delete_item(numbers, OC_find_item(numbers, &a6));
+	findAll();
 	OC_apply(numbers, (OC_apply_fp_t)printAll);
 	printf("\n\n");
 	OC_clear(numbers);
 	OC_apply(numbers, (OC_apply_fp_t)printAll);
+	OC_insert(numbers, &a3);
+
+	OC_insert(numbers, &a4);
+	findAll();
+	OC_apply(numbers, (OC_apply_fp_t)printAll);
+	OC_insert(numbers, &a6);
+	findAll();
+	OC_apply(numbers, (OC_apply_fp_t)printAll);
+	OC_insert(numbers, &a2);
+	findAll();
+	OC_apply(numbers, (OC_apply_fp_t)printAll);
+	OC_insert(numbers, &a5);
+	findAll();
+	OC_apply(numbers, (OC_apply_fp_t)printAll);
+	OC_insert(numbers, &a5);
+	findAll();
+	OC_apply(numbers, (OC_apply_fp_t)printAll);
+	OC_insert(numbers, &a5);
+	findAll();
+	OC_apply(numbers, (OC_apply_fp_t)printAll);
+	OC_delete_item(numbers, OC_find_item(numbers, &a5));
+	findAll();
+	findAll();
+	OC_apply(numbers, (OC_apply_fp_t)printAll);
+	OC_delete_item(numbers, OC_find_item(numbers, &a6));
+	findAll();
+	OC_apply(numbers, (OC_apply_fp_t)printAll);
+	OC_delete_item(numbers, OC_find_item(numbers, &a3));
+	findAll();
+	OC_apply(numbers, (OC_apply_fp_t)printAll);
+	OC_insert(numbers, &a3);
+	findAll();
+	OC_apply(numbers, (OC_apply_fp_t)printAll);
+	OC_delete_item(numbers, OC_find_item(numbers, &a5));
+	findAll();
+	OC_apply(numbers, (OC_apply_fp_t)printAll);
+	OC_insert(numbers, &a7);
+	findAll();
+	OC_apply(numbers, (OC_apply_fp_t)printAll);
+
+	OC_clear(numbers);
+	findAll();
+	OC_apply(numbers, (OC_apply_fp_t)printAll);
+
 	OC_destroy_container(numbers);
 
 
