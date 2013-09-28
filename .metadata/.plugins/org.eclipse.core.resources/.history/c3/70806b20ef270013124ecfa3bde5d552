@@ -31,11 +31,11 @@ struct Ordered_container* OC_create_container(OC_comp_fp_t comp_func) {
 }
 
 void OCInit(struct Ordered_container* cPtr) {
-	g_Container_items_allocated += ARRAY_INIT_SIZE;
-	if (!(cPtr->array = malloc(ARRAY_INIT_SIZE * sizeof(void*)))) {
+	g_Container_items_allocated += 3;
+	if (!(cPtr->array = malloc(3 * sizeof(void*)))) {
 		printErrBadMallocExit();
 	}
-	cPtr->allocation = ARRAY_INIT_SIZE;
+	cPtr->allocation = 3;
 	cPtr->size = 0;
 }
 

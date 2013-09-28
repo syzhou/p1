@@ -6,8 +6,8 @@
 #define PRINT(i) printf("%d\n", i)
 struct Ordered_container* numbers;
 int compare(int *a, int* b);
-int find(const int a);
-int findArg(const int a);
+int find(int a);
+int findArg(int a);
 void addOneAll(int* a);
 void addSomeAll(int* a, int* b);
 void printAll(int* a);
@@ -17,7 +17,7 @@ int stopAtSome(int* a, int* b);
 int compare(int *a, int* b) {
 	return (*a - *b);
 }
-int find(const int a) {
+int find(int a) {
 	void* itemPtr = OC_find_item(numbers, &a);
 	printf("finding %d    ", a);
 	if (itemPtr) {
@@ -27,17 +27,11 @@ int find(const int a) {
 	}
 	return 0;
 }
-int findArg(const int a) {
+int findArg(int a) {
 	void* itemPtr = OC_find_item_arg(numbers, &a, (OC_find_item_arg_fp_t)compare);
-	printf("finding %d    ", a);
-
 	if (itemPtr) {
-		printf("found %d\n", *((int*)(OC_get_data_ptr(itemPtr))));
-
 		return *((int*)(OC_get_data_ptr(itemPtr)));
 	} else {
-		printf("not found\n");
-
 		return 0;
 	}
 }
@@ -67,14 +61,6 @@ int stopAtSome(int* a, int* b) {
 	return 0;
 }
 
-void findAll() {
-	int i = -2;
-	for (i = -2; i < 10; i++) {
-		find(i);
-		findArg(i);
-	}
-
-}
 int main() {
 	int one = 1;
 	int minus1  = -1;
@@ -284,143 +270,11 @@ int main() {
 	OC_apply(numbers, (OC_apply_fp_t)printAll);
 	printf("\n\n");
 	OC_delete_item(numbers, OC_find_item(numbers, &a2));
-	findAll();
 	OC_delete_item(numbers, OC_find_item(numbers, &a6));
-	findAll();
 	OC_apply(numbers, (OC_apply_fp_t)printAll);
 	printf("\n\n");
 	OC_clear(numbers);
 	OC_apply(numbers, (OC_apply_fp_t)printAll);
-	OC_insert(numbers, &a3);
-
-	OC_insert(numbers, &a4);
-	findAll();
-	OC_apply(numbers, (OC_apply_fp_t)printAll);
-	OC_insert(numbers, &a6);
-	findAll();
-	OC_apply(numbers, (OC_apply_fp_t)printAll);
-	OC_insert(numbers, &a2);
-	findAll();
-	OC_apply(numbers, (OC_apply_fp_t)printAll);
-	OC_insert(numbers, &a5);
-	findAll();
-	OC_apply(numbers, (OC_apply_fp_t)printAll);
-	OC_insert(numbers, &a5);
-	findAll();
-	OC_apply(numbers, (OC_apply_fp_t)printAll);
-	OC_insert(numbers, &a5);
-	findAll();
-	OC_apply(numbers, (OC_apply_fp_t)printAll);
-	OC_delete_item(numbers, OC_find_item(numbers, &a5));
-	findAll();
-	findAll();
-	OC_apply(numbers, (OC_apply_fp_t)printAll);
-	OC_delete_item(numbers, OC_find_item(numbers, &a6));
-	findAll();
-	OC_apply(numbers, (OC_apply_fp_t)printAll);
-	OC_delete_item(numbers, OC_find_item(numbers, &a3));
-	findAll();
-	OC_apply(numbers, (OC_apply_fp_t)printAll);
-	OC_insert(numbers, &a3);
-	findAll();
-	OC_apply(numbers, (OC_apply_fp_t)printAll);
-	OC_delete_item(numbers, OC_find_item(numbers, &a5));
-	findAll();
-	OC_apply(numbers, (OC_apply_fp_t)printAll);
-	OC_insert(numbers, &a7);
-	findAll();
-	OC_apply(numbers, (OC_apply_fp_t)printAll);
-
-
-	OC_insert(numbers, &a7);
-	OC_insert(numbers, &a6);
-	OC_insert(numbers, &a5);
-	OC_insert(numbers, &a3);
-	OC_insert(numbers, &a3);
-	OC_insert(numbers, &a8);
-	OC_insert(numbers, &a4);
-	OC_insert(numbers, &a7);
-	OC_insert(numbers, &a6);
-	OC_insert(numbers, &a5);
-	OC_insert(numbers, &a3);
-	OC_insert(numbers, &a3);
-	OC_insert(numbers, &a8);
-	OC_insert(numbers, &a4);
-	OC_insert(numbers, &a7);
-	OC_insert(numbers, &a6);
-	OC_insert(numbers, &a5);
-	OC_insert(numbers, &a3);
-	OC_insert(numbers, &a3);
-	OC_insert(numbers, &a8);
-	OC_insert(numbers, &a4);
-	OC_insert(numbers, &a7);
-	OC_insert(numbers, &a6);
-	OC_insert(numbers, &a5);
-	OC_insert(numbers, &a3);
-	OC_insert(numbers, &a3);
-	OC_insert(numbers, &a8);
-	OC_insert(numbers, &a4);
-	OC_insert(numbers, &a7);
-	OC_insert(numbers, &a6);
-	OC_insert(numbers, &a5);
-	OC_insert(numbers, &a3);
-	OC_insert(numbers, &a3);
-	OC_insert(numbers, &a8);
-	OC_insert(numbers, &a4);
-	OC_insert(numbers, &a7);
-	OC_insert(numbers, &a6);
-	OC_insert(numbers, &a5);
-	OC_insert(numbers, &a3);
-	OC_insert(numbers, &a3);
-	OC_insert(numbers, &a8);
-	OC_insert(numbers, &a4);
-	OC_insert(numbers, &a7);
-	OC_insert(numbers, &a6);
-	OC_insert(numbers, &a5);
-	OC_insert(numbers, &a3);
-	OC_insert(numbers, &a3);
-	OC_insert(numbers, &a8);
-	OC_insert(numbers, &a4);
-	OC_insert(numbers, &a7);
-	OC_insert(numbers, &a6);
-	OC_insert(numbers, &a5);
-	OC_insert(numbers, &a3);
-	OC_insert(numbers, &a3);
-	OC_insert(numbers, &a8);
-	OC_insert(numbers, &a4);
-	OC_insert(numbers, &a7);
-	OC_insert(numbers, &a6);
-	OC_insert(numbers, &a5);
-	OC_insert(numbers, &a3);
-	OC_insert(numbers, &a3);
-	OC_insert(numbers, &a8);
-	OC_insert(numbers, &a4);
-	OC_insert(numbers, &a7);
-	OC_insert(numbers, &a6);
-	OC_insert(numbers, &a5);
-	OC_insert(numbers, &a3);
-	OC_insert(numbers, &a3);
-	OC_insert(numbers, &a8);
-	OC_insert(numbers, &a4);
-	OC_insert(numbers, &a7);
-	OC_insert(numbers, &a6);
-	OC_insert(numbers, &a5);
-	OC_insert(numbers, &a3);
-	OC_insert(numbers, &a3);
-	OC_insert(numbers, &a8);
-	OC_insert(numbers, &a4);
-	OC_insert(numbers, &a7);
-	OC_insert(numbers, &a6);
-	OC_insert(numbers, &a5);
-	OC_insert(numbers, &a3);
-	OC_insert(numbers, &a3);
-	OC_insert(numbers, &a8);
-	OC_insert(numbers, &a4);
-
-	OC_clear(numbers);
-	findAll();
-	OC_apply(numbers, (OC_apply_fp_t)printAll);
-
 	OC_destroy_container(numbers);
 
 
